@@ -543,13 +543,14 @@
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="搜尋漢字、注音或釋義..." oninput="filterInventory()">
             </div>
-            <div class="category-filter" id="categoryFilters">
-                <div class="cat-chip active" onclick="setCategory('all', this)">全部</div>
-                <div class="cat-chip" onclick="setCategory('base', this)">基礎字根</div>
-                <div class="cat-chip" onclick="setCategory('dup', this)">疊字奇觀</div>
-                <div class="cat-chip" onclick="setCategory('huiyi', this)">會意新字</div>
-                <div class="cat-chip" onclick="setCategory('rare', this)">進階與生僻</div>
-            </div>
+           <div class="category-filter" id="categoryFilters">
+    <div class="cat-chip active" onclick="setCategory('all', this)">全部</div>
+    <div class="cat-chip" onclick="setCategory('base', this)">基礎字根</div>
+    <div class="cat-chip" onclick="setCategory('dup', this)">疊字奇觀</div>
+    <div class="cat-chip" onclick="setCategory('huiyi', this)">會意新字</div>
+    <div class="cat-chip" onclick="setCategory('xingsheng', this)">形聲字</div>
+    <div class="cat-chip" onclick="setCategory('rare', this)">進階與生僻</div>
+</div>
             <div class="inventory-list" id="inventoryList">
                 <!-- 動態載入漢字卡片 -->
             </div>
