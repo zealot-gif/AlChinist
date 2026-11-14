@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字大熔爐 (Hanzi Smelter)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --accent-blue: #38bdf8;
+            --accent-gold: #fbbf24;
+            --accent-ember: #f97316;
+            --accent-green: #34d399;
+            --accent-purple: #c084fc;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* 頂部導覽列 */
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .title-group h1 {
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0,0,0,0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            width: 120px;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-ember), var(--accent-gold));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        button.btn {
+            background: var(--border-color);
+            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        button.btn:hover {
+            background: #475569;
+            border-color: var(--accent-gold);
+        }
+
+        button.btn-primary {
+            background: #c2410c;
+        }
+        button.btn-primary:hover {
+            background: #9a3412;
+        }
+
+        /* 主要遊玩區域 */
+        main {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+        }
+
+        /* 左側字庫 */
+        .sidebar {
+            width: 330px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-box {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cat-chip {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            background: #334155;
+            border-radius: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+
+        .cat-chip.active {
+            background: var(--accent-gold);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .inventory-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-content: flex-start;
+        }
+
+        /* 漢字卡片樣式 */
+        .card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 4px 8px rgba(251, 191, 36, 0.2);
+        }
+
+        .card.selected {
+            border-color: var(--accent-ember);
+            background: #2b1a12;
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
+        }
+
+        .card-char {
+            font-family: "KaiTi", "BiauKai", "DFKai-SB", serif;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .card-symbol {
+            font-size: 0.72rem;
+            opacity: 0.75;
+            color: var(--text-muted);
+        }
+
+        .card-badge {
+            background: var(--accent-ember);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 1px 5px;
+            border-radius: 10px;
+            margin-left: 2px;
+        }
+
+        /* 右側熔爐工作檯 */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, #261b18 0%, #0f172a 75%);
+            padding: 20px;
+        }
+
+        .workspace-hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .furnace-circle {
+            width: 340px;
+            height: 340px;
+            border: 2px dashed #475569;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 26px;
+            transition: all 0.3s;
+        }
+
+        .furnace-circle.ready {
+            border-color: var(--accent-ember);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.35); }
+            70% { box-shadow: 0 0 0 22px rgba(249, 115, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        }
+
+        .slot {
+            width: 96px;
+            height: 96px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.88);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .slot:hover {
+            border-color: var(--accent-gold);
+            transform: scale(1.04);
+        }
+
+        /* 三槽等邊三角形排列，支援 2 字與 3 字疊加熔煉 */
+        .slot-0 { top: 22px; left: 50%; transform: translateX(-50%); }
+        .slot-0:hover { transform: translateX(-50%) scale(1.04); }
+        .slot-1 { bottom: 34px; left: 32px; }
+        .slot-2 { bottom: 34px; right: 32px; }
+
+        .slot-char {
+            font-family: "KaiTi", "BiauKai", "DFKai-SB", serif;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            line-height: 1.1;
+        }
+
+        .slot-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .slot-placeholder {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .furnace-core {
+            font-size: 1.6rem;
+            opacity: 0.8;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .combine-btn {
+            background: linear-gradient(135deg, var(--accent-ember), var(--accent-gold));
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 12px 34px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+            transition: all 0.2s;
+        }
+
+        .combine-btn:disabled {
+            background: #334155;
+            color: #64748b;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .combine-btn:not(:disabled):hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.65);
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            color: var(--text-main);
+            border-color: var(--text-muted);
+        }
+
+        /* 提示通知 Log */
+        .log-toast {
+            position: absolute;
+            bottom: 20px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid var(--accent-gold);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            display: none;
+            animation: fadeIn 0.25s forwards;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal 彈窗通用 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 780px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* 說文解字圖鑑專用樣式 */
+        .pokedex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 12px;
+        }
+
+        .poke-card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .poke-card.locked {
+            opacity: 0.4;
+            filter: grayscale(1);
+        }
+
+        .poke-title {
+            font-weight: bold;
+            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .poke-char {
+            font-family: "KaiTi", "BiauKai", "DFKai-SB", serif;
+            font-size: 1.5rem;
+        }
+
+        .poke-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .poke-structure {
+            font-size: 0.78rem;
+            color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            align-self: flex-start;
+        }
+
+        /* 漢字造字結構指南 */
+        .liushu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .liushu-item {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.8rem;
+        }
+
+        .liushu-item strong {
+            color: var(--accent-gold);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column-reverse;
+                height: auto;
+            }
+            .sidebar {
+                width: 100%;
+                height: 45vh;
+                border-right: none;
+                border-top: 1px solid var(--border-color);
+            }
+            .workspace {
+                padding: 24px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="title-group">
+            <h1>🔥 文字大熔爐 <span style="font-size:0.8rem; color:var(--text-muted);">Hanzi Smelter</span></h1>
+        </div>
+        
+        <div class="progress-bar-container">
+            <span style="font-size:0.85rem; color:var(--text-muted);">收錄字數</span>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <span style="font-size:0.85rem; font-weight:bold;" id="progressText">0 / 0</span>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="openModal('pokedexModal')">📜 說文解字圖鑑</button>
+            <button class="btn" onclick="resetProgress()">🔄 重置進度</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- 左側：漢字庫 -->
+        <aside class="sidebar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜尋漢字、注音或釋義..." oninput="filterInventory()">
+            </div>
+            <div class="category-filter" id="categoryFilters">
+                <div class="cat-chip active" onclick="setCategory('all', this)">全部</div>
+                <div class="cat-chip" onclick="setCategory('base', this)">基礎字根</div>
+                <div class="cat-chip" onclick="setCategory('dup', this)">疊字奇觀</div>
+                <div class="cat-chip" onclick="setCategory('huiyi', this)">會意新字</div>
+                <div class="cat-chip" onclick="setCategory('rare', this)">進階與生僻</div>
+            </div>
+            <div class="inventory-list" id="inventoryList">
+                <!-- 動態載入漢字卡片 -->
+            </div>
+        </aside>
+
+        <!-- 右側：三槽文字熔爐 -->
+        <section class="workspace">
+            <div class="workspace-hint">
+                可投入 <strong>2 個</strong> 或 <strong>3 個</strong> 漢字（支援重複疊加，如 火+火=炎、水+水+水=淼）
+            </div>
+
+            <div class="furnace-circle" id="furnaceCircle">
+                <div class="slot slot-0" id="slot0" onclick="clearSlot(0)">
+                    <div class="slot-placeholder">爐位 1</div>
+                </div>
+                <div class="furnace-core">🔥</div>
+                <div class="slot slot-1" id="slot1" onclick="clearSlot(1)">
+                    <div class="slot-placeholder">爐位 2</div>
+                </div>
+                <div class="slot slot-2" id="slot2" onclick="clearSlot(2)">
+                    <div class="slot-placeholder">爐位 3<br><span style="font-size:0.65rem;">(選填)</span></div>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="combine-btn" id="combineBtn" disabled onclick="doSynthesis()">投入熔煉</button>
+                <button class="clear-btn" onclick="clearAllSlots()">清空爐膛</button>
+            </div>
+
+            <div class="log-toast" id="logToast"></div>
+        </section>
+    </main>
+
+    <!-- 說文解字圖鑑 Modal -->
+    <div class="modal-overlay" id="pokedexModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📜 說文解字：漢字熔煉圖鑑</h3>
+                <button class="btn" onclick="closeModal('pokedexModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- 漢字結構小百科 -->
+                <div style="background:#131d2e; border:1px solid var(--accent-gold); border-radius:8px; padding:15px; margin-bottom:20px;">
+                    <h4 style="color:var(--accent-gold); margin-bottom:6px;">📐 漢字組字法則指南</h4>
+                    <p style="font-size:0.8rem; color:var(--text-muted);">漢字並非隨意拼湊，而是遵循「六書」與結構美學的精密組合：</p>
+                    
+                    <div class="liushu-grid">
+                        <div class="liushu-item">
+                            <strong>二疊字（並立/上下）</strong>
+                            同一字根重複兩次，增強語意。如：<span style="color:var(--accent-gold);">火+火=炎</span>、<span style="color:var(--accent-gold);">木+木=林</span>。
+                        </div>
+                        <div class="liushu-item">
+                            <strong>三疊字（品字結構）</strong>
+                            同一字根堆疊三次，表「極多、極盛」。如：<span style="color:var(--accent-gold);">水×3=淼</span>、<span style="color:var(--accent-gold);">金×3=鑫</span>。
+                        </div>
+                        <div class="liushu-item">
+                            <strong>會意組合</strong>
+                            合兩字之義為新義。如：<span style="color:var(--accent-gold);">人+言=信</span>、<span style="color:var(--accent-gold);">日+月=明</span>。
+                        </div>
+                        <div class="liushu-item">
+                            <strong>多層次進階</strong>
+                            合成後的字可再次入爐！如：<span style="color:var(--accent-gold);">炎+炎=燚</span>、<span style="color:var(--accent-gold);">林+火=焚</span>。
+                        </div>
+                    </div>
+                </div>
+
+                <h4 style="margin-bottom:12px;">漢字收錄總覽</h4>
+                <div class="pokedex-grid" id="pokedexGrid">
+                    <!-- 動態繪製圖鑑內容 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 合成歷程 Modal -->
+    <div class="modal-overlay" id="recipeTreeModal">
+        <div class="modal-content" style="max-width: 460px;">
+            <div class="modal-header">
+                <h3>🌳 造字配方 (Recipe Tree)</h3>
+                <button class="btn" onclick="closeModal('recipeTreeModal')">✕</button>
+            </div>
+            <div class="modal-body" id="recipeTreeBody">
+                <!-- 動態注入配方歷程 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 漢字資料庫定義 (Items Database)
+        const ITEMS = {
+            // 基礎字根 (20個)
+            '火': { pinyin: 'ㄏㄨㄛˇ', cat: 'base', structure: '象形字', desc: '象火焰向上燃燒之形，光明與熱力之源。' },
+            '水': { pinyin: 'ㄕㄨㄟˇ', cat: 'base', structure: '象形字', desc: '象河川水流蜿蜒流動之形。' },
+            '木': { pinyin: 'ㄇㄨˋ', cat: 'base', structure: '象形字', desc: '上有枝葉、下有樹根的樹木本字。' },
+            '金': { pinyin: 'ㄐㄧㄣ', cat: 'base', structure: '會意字', desc: '埋藏於土中的金屬礦物，百金之長。' },
+            '土': { pinyin: 'ㄊㄨˇ', cat: 'base', structure: '象形字', desc: '地面上隆起的土塊，萬物生長之基。' },
+            '日': { pinyin: 'ㄖˋ', cat: 'base', structure: '象形字', desc: '太陽的輪廓，白晝與光明的象徵。' },
+            '月': { pinyin: 'ㄩㄝˋ', cat: 'base', structure: '象形字', desc: '一彎新月之形，黑夜中的清輝。' },
+            '人': { pinyin: 'ㄖㄣˊ', cat: 'base', structure: '象形字', desc: '側面站立、垂臂彎腰的人形。' },
+            '言': { pinyin: 'ㄧㄢˊ', cat: 'base', structure: '會意字', desc: '從口辛聲，開口說話、表達心意。' },
+            '口': { pinyin: 'ㄎㄡˇ', cat: 'base', structure: '象形字', desc: '人的嘴巴，亦可引申為孔洞、出入口。' },
+            '心': { pinyin: 'ㄒㄧㄣ', cat: 'base', structure: '象形字', desc: '心臟之形，古人認為心是思考與情感所在。' },
+            '女': { pinyin: 'ㄋㄩˇ', cat: 'base', structure: '象形字', desc: '雙手交疊、端莊跪坐的女子之形。' },
+            '子': { pinyin: 'ㄗˇ', cat: 'base', structure: '象形字', desc: '襁褓中揮舞雙臂的嬰兒，引申為子女。' },
+            '山': { pinyin: 'ㄕㄢ', cat: 'base', structure: '象形字', desc: '三座山峰並立起伏之形。' },
+            '石': { pinyin: 'ㄕˊ', cat: 'base', structure: '象形字', desc: '山崖（厂）之下掉落的石塊（口）。' },
+            '田': { pinyin: 'ㄊㄧㄢˊ', cat: 'base', structure: '象形字', desc: '阡陌縱橫、井然有序的農田。' },
+            '力': { pinyin: 'ㄌㄧˋ', cat: 'base', structure: '象形字', desc: '古代農具「耒」之形，耕作需用力，引申為力氣。' },
+            '目': { pinyin: 'ㄇㄨˋ', cat: 'base', structure: '象形字', desc: '眼睛的輪廓與瞳孔，後世由橫轉豎。' },
+            '手': { pinyin: 'ㄕㄡˇ', cat: 'base', structure: '象形字', desc: '五指張開的手掌之形。' },
+            '門': { pinyin: 'ㄇㄣˊ', cat: 'base', structure: '象形字', desc: '左右兩扇門扉相對之形。' },
+
+            // 疊字奇觀 (二疊、三疊、四疊)
+            '炎': { pinyin: 'ㄧㄢˊ', cat: 'dup', structure: '上下二疊', desc: '雙火相疊，火光上騰，天氣酷熱。' },
+            '焱': { pinyin: 'ㄧㄢˋ', cat: 'dup', structure: '品字結構', desc: '三火相聚，火花飛濺、火焰閃耀的樣子。' },
+            '燚': { pinyin: 'ㄧˋ', cat: 'rare', structure: '四疊奇字', desc: '四火相疊！形容火勢極其猛烈熾熱。' },
+            '沝': { pinyin: 'ㄓㄨㄟˇ', cat: 'rare', structure: '左右二疊', desc: '二水並流，古同「水」字，亦作地名用字。' },
+            '淼': { pinyin: 'ㄇㄧㄠˇ', cat: 'dup', structure: '品字結構', desc: '三水浩蕩，形容水勢遼闊無邊無際。' },
+            '林': { pinyin: 'ㄌㄧㄣˊ', cat: 'dup', structure: '左右二疊', desc: '平地有叢木曰林，兩木成林。' },
+            '森': { pinyin: 'ㄙㄣ', cat: 'dup', structure: '品字結構', desc: '三木成森，樹木叢生、茂密幽深。' },
+            '鑫': { pinyin: 'ㄒㄧㄣ', cat: 'dup', structure: '品字結構', desc: '三金疊加，象徵財富興盛、金光閃耀。' },
+            '圭': { pinyin: 'ㄍㄨㄟ', cat: 'dup', structure: '上下二疊', desc: '重土為圭，古代帝王諸侯禮儀所持的玉器。' },
+            '垚': { pinyin: 'ㄧㄠˊ', cat: 'dup', structure: '品字結構', desc: '三土堆積，形容山高土厚的樣子，常用於人名。' },
+            '昌': { pinyin: 'ㄔㄤ', cat: 'dup', structure: '上下二疊', desc: '雙日並明，陽光普照、興旺繁榮。' },
+            '晶': { pinyin: 'ㄐㄧㄥ', cat: 'dup', structure: '品字結構', desc: '三日同輝，光亮剔透（如水晶、結晶）。' },
+            '朋': { pinyin: 'ㄆㄥˊ', cat: 'dup', structure: '左右二疊', desc: '古時兩串貝殼相並為朋，引申為志同道合的朋友。' },
+            '從': { pinyin: 'ㄘㄨㄥˊ', cat: 'dup', structure: '左右二疊', desc: '一人在後跟隨一人，意為跟從、順從。' },
+            '眾': { pinyin: 'ㄓㄨㄥˋ', cat: 'dup', structure: '品字結構', desc: '三人成眾，表示人數眾多、群眾。' },
+            '呂': { pinyin: 'ㄌㄩˇ', cat: 'dup', structure: '上下二疊', desc: '象兩塊脊椎骨相連之形，亦指古代音律。' },
+            '品': { pinyin: 'ㄆㄧㄣˇ', cat: 'dup', structure: '品字結構', desc: '三口相疊，意為眾多，引申為品嘗、品質與品德。' },
+            '磊': { pinyin: 'ㄌㄟˇ', cat: 'dup', structure: '品字結構', desc: '眾石累積，引申為心胸坦蕩、光明磊落。' },
+            '惢': { pinyin: 'ㄙㄨㄛˇ', cat: 'rare', structure: '品字結構', desc: '三心相聚，心生疑慮、多慮（亦讀 ruǐ，古同蕊）。' },
+            '瞐': { pinyin: 'ㄇㄛˋ', cat: 'rare', structure: '品字結構', desc: '三目相疊，形容目光深邃美麗的樣子。' },
+            '掱': { pinyin: 'ㄆㄚˊ', cat: 'rare', structure: '品字結構', desc: '三隻手！俗語稱小偷為「三隻手」，即為此字。' },
+            '畾': { pinyin: 'ㄌㄟˊ', cat: 'rare', structure: '品字結構', desc: '田間之地，亦為「雷」字的古聲符。' },
+
+            // 會意新字
+            '信': { pinyin: 'ㄒㄧㄣˋ', cat: 'huiyi', structure: '左右會意', desc: '人言為信，說話真實不欺，誠實守信。' },
+            '休': { pinyin: 'ㄒㄧㄡ', cat: 'huiyi', structure: '左右會意', desc: '人倚靠在樹木旁乘涼歇息，即「休息」。' },
+            '仙': { pinyin: 'ㄒㄧㄢ', cat: 'huiyi', structure: '左右會意', desc: '居於深山、超凡脫俗的得道之人。' },
+            '囚': { pinyin: 'ㄑㄧㄡˊ', cat: 'huiyi', structure: '全包圍會意', desc: '人被關在四面圍牆之中，意為囚禁、囚犯。' },
+            '坐': { pinyin: 'ㄗㄨㄛˋ', cat: 'huiyi', structure: '三元會意', desc: '兩人（人+人）相對席地而坐於土地（土）之上。' },
+            '明': { pinyin: 'ㄇㄧㄥˊ', cat: 'huiyi', structure: '左右會意', desc: '日與月交相輝映，帶來光明與清晰。' },
+            '好': { pinyin: 'ㄏㄠˇ', cat: 'huiyi', structure: '左右會意', desc: '女子懷抱幼兒，畫面溫馨，引申為美好、喜愛。' },
+            '男': { pinyin: 'ㄋㄢˊ', cat: 'huiyi', structure: '上下會意', desc: '在農田（田）中出力（力）耕作的男子。' },
+            '看': { pinyin: 'ㄎㄢˋ', cat: 'huiyi', structure: '上下會意', desc: '以手遮擋陽光於目上，向遠方眺望。' },
+            '相': { pinyin: 'ㄒㄧㄤ', cat: 'huiyi', structure: '左右會意', desc: '以目仔細察看樹木，引申為觀察、互相。' },
+            '想': { pinyin: 'ㄒㄧㄤˇ', cat: 'huiyi', structure: '上下形聲會意', desc: '心中有相（形象），即思念、思考與想像。' },
+            '淚': { pinyin: 'ㄌㄟˋ', cat: 'huiyi', structure: '左右會意', desc: '眼中流出的水珠，即眼淚。' },
+            '岩': { pinyin: 'ㄧㄢˊ', cat: 'huiyi', structure: '上下會意', desc: '山上的高峻石壁，岩石。' },
+            '災': { pinyin: 'ㄗㄞ', cat: 'huiyi', structure: '會意字', desc: '水患與火災並至，水火無情而成天災禍患。' },
+            '淡': { pinyin: 'ㄉㄢˋ', cat: 'huiyi', structure: '左右會意', desc: '以水澆減炎火之勢，引申為味道不濃、平淡。' },
+            '問': { pinyin: 'ㄨㄣˋ', cat: 'huiyi', structure: '半包圍會意', desc: '站在門前開口詢問，即「發問」。' },
+            '間': { pinyin: 'ㄐㄧㄢ', cat: 'huiyi', structure: '半包圍會意', desc: '陽光從門縫中透入，引申為縫隙、空間與時間。' },
+            '閒': { pinyin: 'ㄒㄧㄢˊ', cat: 'huiyi', structure: '半包圍會意', desc: '夜晚月光照進門扉，清靜悠閒、空暇。' },
+            '閃': { pinyin: 'ㄕㄢˇ', cat: 'huiyi', structure: '半包圍會意', desc: '人從門中快速一晃而過，閃現、躲閃。' },
+            '悶': { pinyin: 'ㄇㄣˋ', cat: 'huiyi', structure: '半包圍會意', desc: '心被緊鎖在門內，鬱結煩悶。' },
+            '捫': { pinyin: 'ㄇㄣˊ', cat: 'rare', structure: '左右形聲會意', desc: '以手觸摸門扉或胸口，如「捫心自問」。' },
+            '杏': { pinyin: 'ㄒㄧㄥˋ', cat: 'huiyi', structure: '上下會意', desc: '果實生於木上、可入口品嘗的甜美杏子。' },
+            '東': { pinyin: 'ㄉㄨㄥ', cat: 'huiyi', structure: '獨體會意', desc: '日出於東方扶桑樹後，太陽升起的方向。' },
+            '焚': { pinyin: 'ㄈㄣˊ', cat: 'huiyi', structure: '上下會意', desc: '在樹林（林）下放火（火），意為焚燒。' },
+            '沐': { pinyin: 'ㄇㄨˋ', cat: 'huiyi', structure: '左右會意', desc: '古人以草木煮水洗髮，引申為沐浴、潤澤。' },
+            '泥': { pinyin: 'ㄋㄧˊ', cat: 'huiyi', structure: '左右形聲會意', desc: '水與土交融而成的濕軟泥巴。' },
+            '吐': { pinyin: 'ㄊㄨˇ', cat: 'huiyi', structure: '左右形聲會意', desc: '口中含土而吐出，意為吐露、嘔吐。' },
+            '如': { pinyin: 'ㄖㄨˊ', cat: 'huiyi', structure: '左右會意', desc: '女子開口順從，引申為如同、依照。' },
+            '孔': { pinyin: 'ㄎㄨㄥˇ', cat: 'huiyi', structure: '左右會意', desc: '嬰兒張口吸乳，引申為孔洞、姓氏。' },
+            '鎔': { pinyin: 'ㄖㄨㄥˊ', cat: 'huiyi', structure: '左右形聲會意', desc: '以烈火高溫熔化金屬，鑄造器物（熔爐本義）。' },
+            '里': { pinyin: 'ㄌㄧˇ', cat: 'huiyi', structure: '上下會意', desc: '有農田（田）有土地（土）即可聚居成「鄉里」。' },
+            '俚': { pinyin: 'ㄌㄧˇ', cat: 'rare', structure: '左右形聲會意', desc: '鄉里民間通俗的言語歌謠，如「俚語」。' }
+        };
+
+        // 2. 合成表配方 (Recipes - Key 必須依字母/Unicode排序以確保順序無關)
+        const RAW_RECIPES = [
+            // 疊字系列
+            { in: ['火', '火'], out: '炎' },
+            { in: ['火', '火', '火'], out: '焱' },
+            { in: ['炎', '炎'], out: '燚' },
+            { in: ['水', '水'], out: '沝' },
+            { in: ['水', '水', '水'], out: '淼' },
+            { in: ['木', '木'], out: '林' },
+            { in: ['木', '木', '木'], out: '森' },
+            { in: ['金', '金', '金'], out: '鑫' },
+            { in: ['土', '土'], out: '圭' },
+            { in: ['土', '土', '土'], out: '垚' },
+            { in: ['日', '日'], out: '昌' },
+            { in: ['日', '日', '日'], out: '晶' },
+            { in: ['月', '月'], out: '朋' },
+            { in: ['人', '人'], out: '從' },
+            { in: ['人', '人', '人'], out: '眾' },
+            { in: ['口', '口'], out: '呂' },
+            { in: ['口', '口', '口'], out: '品' },
+            { in: ['石', '石', '石'], out: '磊' },
+            { in: ['心', '心', '心'], out: '惢' },
+            { in: ['目', '目', '目'], out: '瞐' },
+            { in: ['手', '手', '手'], out: '掱' },
+            { in: ['田', '田', '田'], out: '畾' },
+
+            // 會意與進階組合
+            { in: ['人', '言'], out: '信' },
+            { in: ['人', '木'], out: '休' },
+            { in: ['人', '山'], out: '仙' },
+            { in: ['人', '口'], out: '囚' },
+            { in: ['人', '人', '土'], out: '坐' },
+            { in: ['日', '月'], out: '明' },
+            { in: ['女', '子'], out: '好' },
+            { in: ['田', '力'], out: '男' },
+            { in: ['手', '目'], out: '看' },
+            { in: ['木', '目'], out: '相' },
+            { in: ['相', '心'], out: '想' },
+            { in: ['水', '目'], out: '淚' },
+            { in: ['山', '石'], out: '岩' },
+            { in: ['水', '火'], out: '災' },
+            { in: ['水', '炎'], out: '淡' },
+            { in: ['門', '口'], out: '問' },
+            { in: ['門', '日'], out: '間' },
+            { in: ['門', '月'], out: '閒' },
+            { in: ['門', '人'], out: '閃' },
+            { in: ['門', '心'], out: '悶' },
+            { in: ['門', '手'], out: '捫' },
+            { in: ['木', '口'], out: '杏' },
+            { in: ['日', '木'], out: '東' },
+            { in: ['林', '火'], out: '焚' },
+            { in: ['水', '木'], out: '沐' },
+            { in: ['水', '土'], out: '泥' },
+            { in: ['口', '土'], out: '吐' },
+            { in: ['女', '口'], out: '如' },
+            { in: ['子', '口'], out: '孔' },
+            { in: ['金', '火'], out: '鎔' },
+            { in: ['田', '土'], out: '里' },
+            { in: ['人', '里'], out: '俚' }
+        ];
+
+        // 將配方轉換為排序後的標準鍵值對照表
+        const RECIPES = {};
+        RAW_RECIPES.forEach(r => {
+            const key = [...r.in].sort().join('+');
+            RECIPES[key] = r.out;
+        });
+
+        // 3. 遊戲狀態 State
+        const INITIAL_UNLOCKED = [
+            '火', '水', '木', '金', '土',
+            '日', '月', '人', '言', '口',
+            '心', '女', '子', '山', '石',
+            '田', '力', '目', '手', '門'
+        ];
+
+        let unlockedItems = new Set(INITIAL_UNLOCKED);
+        let recipeHistory = {}; // 紀錄 char -> [parent1, parent2, (parent3)]
+        let slots = [null, null, null]; // 支援 2 字或 3 字熔煉
+        let currentCategory = 'all';
+
+        // 初始化
+        window.onload = () => {
+            loadProgress();
+            renderInventory();
+            updateProgress();
+        };
+
+        // 計算某個字目前在熔爐中放了幾個
+        function countInSlots(id) {
+            return slots.filter(s => s === id).length;
+        }
+
+        // 渲染字庫列表
+        function renderInventory() {
+            const listEl = document.getElementById('inventoryList');
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            listEl.innerHTML = '';
+
+            Array.from(unlockedItems).forEach(id => {
+                const item = ITEMS[id];
+                if (!item) return;
+
+                // 搜尋與分類過濾
+                if (currentCategory !== 'all' && item.cat !== currentCategory) return;
+                if (search && !id.includes(search) && !item.pinyin.includes(search) && !item.desc.toLowerCase().includes(search)) return;
+
+                const count = countInSlots(id);
+                const card = document.createElement('div');
+                card.className = `card ${count > 0 ? 'selected' : ''}`;
+                card.onclick = () => selectCard(id);
+                card.innerHTML = `
+                    <span class="card-char">${id}</span>
+                    <span class="card-symbol">${item.pinyin}</span>
+                    ${count > 0 ? `<span class="card-badge">×${count}</span>` : ''}
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        // 點擊卡片放入下一個空爐位（支援同一字重複放入）
+        function selectCard(id) {
+            const emptyIndex = slots.indexOf(null);
+            if (emptyIndex !== -1) {
+                slots[emptyIndex] = id;
+            } else {
+                // 若三格皆滿，替換最後一格
+                slots[2] = id;
+            }
+
+            updateSlotsUI();
+            renderInventory();
+        }
+
+        // 更新熔爐槽位 UI
+        function updateSlotsUI() {
+            const activeCount = slots.filter(Boolean).length;
+            const combineBtn = document.getElementById('combineBtn');
+
+            slots.forEach((charId, idx) => {
+                const slotEl = document.getElementById(`slot${idx}`);
+                if (charId && ITEMS[charId]) {
+                    slotEl.innerHTML = `
+                        <div class="slot-char">${charId}</div>
+                        <div class="slot-sub">${ITEMS[charId].pinyin}</div>
+                    `;
+                } else {
+                    slotEl.innerHTML = idx === 2
+                        ? `<div class="slot-placeholder">爐位 3<br><span style="font-size:0.65rem;">(選填)</span></div>`
+                        : `<div class="slot-placeholder">爐位 ${idx + 1}</div>`;
+                }
+            });
+
+            // 至少放入 2 個漢字即可熔煉
+            combineBtn.disabled = activeCount < 2;
+            document.getElementById('furnaceCircle').className = `furnace-circle ${activeCount >= 2 ? 'ready' : ''}`;
+        }
+
+        // 點擊單一爐位退回該字
+        function clearSlot(slotIdx) {
+            if (!slots[slotIdx]) return;
+            slots[slotIdx] = null;
+            updateSlotsUI();
+            renderInventory();
+        }
+
+        // 清空全部爐位
+        function clearAllSlots() {
+            slots = [null, null, null];
+            updateSlotsUI();
+            renderInventory();
+        }
+
+        // 執行熔煉邏輯
+        function doSynthesis() {
+            const activeChars = slots.filter(Boolean);
+            if (activeChars.length < 2) return;
+
+            // 依 Unicode/字典序排序，實現順序無關匹配
+            const sortedKey = [...activeChars].sort().join('+');
+            const resultId = RECIPES[sortedKey];
+
+            if (resultId && ITEMS[resultId]) {
+                const isNew = !unlockedItems.has(resultId);
+                unlockedItems.add(resultId);
+
+                if (isNew) {
+                    recipeHistory[resultId] = [...activeChars];
+                    showToast(`✨ 熔煉出新字：【${resultId}】(${ITEMS[resultId].pinyin})！`);
+                } else {
+                    showToast(`🔥 熔煉成功：【${resultId}】`);
+                }
+
+                saveProgress();
+                updateProgress();
+            } else {
+                showToast(`💨 ${activeChars.join(' + ')} 在爐中化為一縷青煙，沒有組成新字...`);
+            }
+
+            clearAllSlots();
+        }
+
+        // 分類過濾
+        function setCategory(cat, el) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            renderInventory();
+        }
+
+        function filterInventory() {
+            renderInventory();
+        }
+
+        // 顯示提示 Toast
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('logToast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 2800);
+        }
+
+        // 更新進度條
+        function updateProgress() {
+            const total = Object.keys(ITEMS).length;
+            const current = unlockedItems.size;
+            const pct = Math.round((current / total) * 100);
+
+            document.getElementById('progressFill').style.width = `${pct}%`;
+            document.getElementById('progressText').innerText = `${current} / ${total}`;
+        }
+
+        // 說文解字圖鑑渲染
+        function renderPokedex() {
+            const grid = document.getElementById('pokedexGrid');
+            grid.innerHTML = '';
+
+            Object.keys(ITEMS).forEach(id => {
+                const item = ITEMS[id];
+                const isUnlocked = unlockedItems.has(id);
+
+                const card = document.createElement('div');
+                card.className = `poke-card ${isUnlocked ? '' : 'locked'}`;
+                card.innerHTML = `
+                    <div class="poke-title">
+                        <span class="poke-char">${isUnlocked ? id : '？'}</span>
+                        <span style="font-size:0.78rem; color:var(--text-muted);">${isUnlocked ? item.pinyin : '未解鎖'}</span>
+                    </div>
+                    ${isUnlocked ? `<div class="poke-structure">${item.structure}</div>` : ''}
+                    <div class="poke-desc">${isUnlocked ? item.desc : '尚未在熔爐中煉出此字。'}</div>
+                    ${isUnlocked && recipeHistory[id] ? `<button class="btn" style="margin-top:4px; font-size:0.72rem; padding:3px 8px; align-self:flex-start;" onclick="showRecipeTree('${id}')">🌳 查看造字配方</button>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 顯示造字配方 Modal（支援 2 字與 3 字配方）
+        function showRecipeTree(itemId) {
+            const parents = recipeHistory[itemId];
+            if (!parents) return;
+
+            const recipeHTML = parents.map(p => `
+                <div class="card" style="cursor:default;">
+                    <span class="card-char">${p}</span>
+                    <span class="card-symbol">${ITEMS[p] ? ITEMS[p].pinyin : ''}</span>
+                </div>
+            `).join('<span style="font-weight:bold; color:var(--accent-ember);">+</span>');
+
+            const body = document.getElementById('recipeTreeBody');
+            body.innerHTML = `
+                <div style="text-align:center; margin-bottom:16px;">
+                    <div style="font-family:'KaiTi','BiauKai',serif; font-size:3rem; color:var(--accent-gold); font-weight:bold;">${itemId}</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">${ITEMS[itemId].pinyin} · ${ITEMS[itemId].structure}</div>
+                </div>
+                <div style="display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                    ${recipeHTML}
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-muted); text-align:center; line-height:1.5;">
+                    ${ITEMS[itemId].desc}
+                </p>
+            `;
+            openModal('recipeTreeModal');
+        }
+
+        // Modal 控制
+        function openModal(id) {
+            if (id === 'pokedexModal') renderPokedex();
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // 存檔與重置
+        function saveProgress() {
+            localStorage.setItem('hanzi_smelter_unlocked', JSON.stringify(Array.from(unlockedItems)));
+            localStorage.setItem('hanzi_smelter_history', JSON.stringify(recipeHistory));
+        }
+
+        function loadProgress() {
+            const savedUnlocked = localStorage.getItem('hanzi_smelter_unlocked');
+            const savedHistory = localStorage.getItem('hanzi_smelter_history');
+
+            if (savedUnlocked) unlockedItems = new Set(JSON.parse(savedUnlocked));
+            if (savedHistory) recipeHistory = JSON.parse(savedHistory);
+        }
+
+        function resetProgress() {
+            if (confirm('確定要重置所有文字熔煉進度嗎？')) {
+                localStorage.removeItem('hanzi_smelter_unlocked');
+                localStorage.removeItem('hanzi_smelter_history');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
