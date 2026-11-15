@@ -66,7 +66,7 @@
         }
 
         .progress-bar {
-            width: 120px;
+            width: 110px;
             height: 8px;
             background: #334155;
             border-radius: 4px;
@@ -83,6 +83,7 @@
         .btn-group {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         button.btn {
@@ -96,7 +97,7 @@
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
         }
 
         button.btn:hover {
@@ -109,6 +110,16 @@
         }
         button.btn-primary:hover {
             background: #9a3412;
+        }
+
+        button.btn-badge {
+            background: linear-gradient(135deg, #78350f, #b45309);
+            border-color: var(--accent-gold);
+            color: #fef3c7;
+            font-weight: bold;
+        }
+        button.btn-badge:hover {
+            background: linear-gradient(135deg, #92400e, #d97706);
         }
 
         /* 主要遊玩區域 */
@@ -140,6 +151,7 @@
             padding: 8px 12px;
             border-radius: 6px;
             outline: none;
+            user-select: text;
         }
 
         .category-filter {
@@ -290,7 +302,6 @@
             transform: scale(1.04);
         }
 
-        /* 三槽等邊三角形排列，支援 2 字與 3 字疊加熔煉 */
         .slot-0 { top: 22px; left: 50%; transform: translateX(-50%); }
         .slot-0:hover { transform: translateX(-50%) scale(1.04); }
         .slot-1 { bottom: 34px; left: 32px; }
@@ -375,14 +386,61 @@
         .log-toast {
             position: absolute;
             bottom: 20px;
-            background: rgba(30, 41, 59, 0.95);
+            background: rgba(30, 41, 59, 0.96);
             border: 1px solid var(--accent-gold);
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 22px;
+            border-radius: 10px;
             font-size: 0.92rem;
             display: none;
             animation: fadeIn 0.25s forwards;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 90%;
+            z-index: 20;
+        }
+
+        .log-toast.badge-unlock {
+            background: linear-gradient(135deg, #451a03, #78350f);
+            border: 2px solid var(--accent-gold);
+            color: #fef3c7;
+            font-weight: bold;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.55);
+        }
+
+        .log-toast.clickable {
+            cursor: pointer;
+            padding-right: 16px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .log-toast.clickable:hover {
+            transform: translateY(-3px);
+            border-color: #fde047;
+            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.45);
+        }
+
+        .toast-tap-hint {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 8px;
+            font-size: 0.78rem;
+            background: rgba(251, 191, 36, 0.22);
+            color: #fde047;
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            border-radius: 12px;
+            vertical-align: middle;
+        }
+
+        .detail-badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent-blue);
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         @keyframes fadeIn {
@@ -406,9 +464,9 @@
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            width: 90%;
-            max-width: 780px;
-            max-height: 85vh;
+            width: 92%;
+            max-width: 840px;
+            max-height: 86vh;
             display: flex;
             flex-direction: column;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -429,25 +487,81 @@
             flex: 1;
         }
 
-        /* 說文解字圖鑑專用樣式 */
+        /* 圖鑑分組區塊樣式 */
+        .pokedex-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .group-section {
+            background: #131c2e;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 18px;
+        }
+
+        .group-section.completed {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 14px rgba(251, 191, 36, 0.12);
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .group-title {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-status {
+            font-size: 0.78rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: #0f172a;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .group-status.earned {
+            background: linear-gradient(135deg, #78350f, #b45309);
+            color: #fef3c7;
+            border-color: var(--accent-gold);
+            font-weight: bold;
+        }
+
         .pokedex-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+            gap: 10px;
         }
 
         .poke-card {
             background: #0f172a;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
         .poke-card.locked {
-            opacity: 0.4;
+            opacity: 0.45;
             filter: grayscale(1);
         }
 
@@ -461,44 +575,200 @@
 
         .poke-char {
             font-family: "KaiTi", "BiauKai", "DFKai-SB", serif;
-            font-size: 1.5rem;
+            font-size: 1.45rem;
         }
 
         .poke-desc {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
             line-height: 1.4;
         }
 
         .poke-structure {
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             color: var(--accent-blue);
             background: rgba(56, 189, 248, 0.1);
-            padding: 2px 8px;
+            padding: 2px 7px;
             border-radius: 4px;
             align-self: flex-start;
         }
 
-        /* 漢字造字結構指南 */
-        .liushu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin: 12px 0;
-        }
-
-        .liushu-item {
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 0.8rem;
-        }
-
-        .liushu-item strong {
+        /* 徽章陳列館樣式 */
+        .badge-section-title {
+            font-size: 1rem;
             color: var(--accent-gold);
-            display: block;
-            margin-bottom: 4px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .badge-card {
+            background: linear-gradient(145deg, #291d0e, #18130c);
+            border: 1.5px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(251, 191, 36, 0.18);
+            position: relative;
+        }
+
+        .badge-card.locked {
+            background: #0f172a;
+            border: 1px dashed var(--border-color);
+            box-shadow: none;
+            opacity: 0.65;
+        }
+
+        .badge-emblem {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(251,191,36,0.28) 0%, rgba(180,83,9,0.15) 100%);
+            border: 2px solid var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .badge-card.locked .badge-emblem {
+            background: #1e293b;
+            border-color: #475569;
+            filter: grayscale(1);
+        }
+
+        .badge-name {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .badge-card.locked .badge-name {
+            color: var(--text-muted);
+        }
+
+        .badge-chars-pill {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 4px;
+        }
+
+        .mini-char {
+            font-family: "KaiTi", "BiauKai", "DFKai-SB", serif;
+            font-size: 0.95rem;
+            padding: 2px 7px;
+            border-radius: 5px;
+            background: rgba(251, 191, 36, 0.18);
+            color: #fef3c7;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+
+        .mini-char.missing {
+            background: #1e293b;
+            color: #64748b;
+            border-color: #334155;
+        }
+
+        /* 圖鑑底部危險操作區（防誤觸重置） */
+        .danger-zone {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-danger-outline {
+            background: transparent;
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            padding: 7px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            transition: all 0.2s;
+        }
+
+        .btn-danger-outline:hover {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: #ef4444;
+        }
+
+        .reset-confirm-box {
+            display: none;
+            width: 100%;
+            max-width: 420px;
+            background: rgba(127, 29, 29, 0.22);
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            padding: 14px 16px;
+            text-align: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .reset-confirm-box p {
+            font-size: 0.83rem;
+            color: #fecaca;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .reset-input-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reset-input-row input {
+            width: 120px;
+            background: #0f172a;
+            border: 1px solid #ef4444;
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.9rem;
+            outline: none;
+            user-select: text;
+        }
+
+        .btn-danger-solid {
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-danger-solid:disabled {
+            background: #475569;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-danger-solid:not(:disabled):hover {
+            background: #b91c1c;
         }
 
         @media (max-width: 768px) {
@@ -532,8 +802,8 @@
         </div>
 
         <div class="btn-group">
-            <button class="btn btn-primary" onclick="openModal('pokedexModal')">📜 說文解字圖鑑</button>
-            <button class="btn" onclick="resetProgress()">🔄 重置進度</button>
+            <button class="btn btn-badge" onclick="openModal('badgesModal')">🏆 已獲得徽章 (<span id="badgeCountText">0/0</span>)</button>
+            <button class="btn btn-primary" onclick="openModal('pokedexModal')">📜 分類圖鑑</button>
         </div>
     </header>
 
@@ -541,25 +811,23 @@
         <!-- 左側：漢字庫 -->
         <aside class="sidebar">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜尋漢字、注音或釋義..." oninput="filterInventory()">
+                <input type="text" id="searchInput" placeholder="搜尋漢字、注音或分類..." oninput="filterInventory()">
             </div>
-           <div class="category-filter" id="categoryFilters">
-    <div class="cat-chip active" onclick="setCategory('all', this)">全部</div>
-    <div class="cat-chip" onclick="setCategory('base', this)">基礎字根</div>
-    <div class="cat-chip" onclick="setCategory('dup', this)">疊字奇觀</div>
-    <div class="cat-chip" onclick="setCategory('huiyi', this)">會意新字</div>
-    <div class="cat-chip" onclick="setCategory('xingsheng', this)">形聲字</div>
-    <div class="cat-chip" onclick="setCategory('rare', this)">進階與生僻</div>
-</div>
-            <div class="inventory-list" id="inventoryList">
-                <!-- 動態載入漢字卡片 -->
+            <div class="category-filter" id="categoryFilters">
+                <div class="cat-chip active" onclick="setCategory('all', this)">全部</div>
+                <div class="cat-chip" onclick="setCategory('base', this)">基礎字根</div>
+                <div class="cat-chip" onclick="setCategory('dup', this)">疊字奇觀</div>
+                <div class="cat-chip" onclick="setCategory('huiyi', this)">會意新字</div>
+                <div class="cat-chip" onclick="setCategory('xingsheng', this)">形聲字</div>
+                <div class="cat-chip" onclick="setCategory('rare', this)">進階與生僻</div>
             </div>
+            <div class="inventory-list" id="inventoryList"></div>
         </aside>
 
         <!-- 右側：三槽文字熔爐 -->
         <section class="workspace">
             <div class="workspace-hint">
-                可投入 <strong>2 個</strong> 或 <strong>3 個</strong> 漢字（支援重複疊加，如 火+火=炎、水+水+水=淼）
+                集齊同一主題分類的所有漢字，即可解鎖專屬<strong>【成就徽章】</strong>！
             </div>
 
             <div class="furnace-circle" id="furnaceCircle">
@@ -584,86 +852,116 @@
         </section>
     </main>
 
-    <!-- 說文解字圖鑑 Modal -->
-    <div class="modal-overlay" id="pokedexModal">
+    <!-- 🏆 已獲得徽章 Modal -->
+    <div class="modal-overlay" id="badgesModal" onclick="if(event.target === this) closeModal('badgesModal')">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📜 說文解字：漢字熔煉圖鑑</h3>
+                <h3>🏆 徽章陳列館（集齊主題全字解鎖）</h3>
+                <button class="btn" onclick="closeModal('badgesModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <h4 class="badge-section-title">✨ 已獲得徽章 (<span id="earnedBadgeNum">0</span>)</h4>
+                <div class="badges-grid" id="earnedBadgesGrid"></div>
+
+                <h4 class="badge-section-title" style="color:var(--text-muted);">🔒 尚未集齊的徽章 (<span id="lockedBadgeNum">0</span>)</h4>
+                <div class="badges-grid" id="lockedBadgesGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📜 分類圖鑑 Modal -->
+    <div class="modal-overlay" id="pokedexModal" onclick="if(event.target === this) closeModal('pokedexModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📜 說文解字：主題分類圖鑑</h3>
                 <button class="btn" onclick="closeModal('pokedexModal')">✕</button>
             </div>
             <div class="modal-body">
-                <!-- 漢字結構小百科 -->
-                <div style="background:#131d2e; border:1px solid var(--accent-gold); border-radius:8px; padding:15px; margin-bottom:20px;">
-                    <h4 style="color:var(--accent-gold); margin-bottom:6px;">📐 漢字組字法則指南</h4>
-                    <p style="font-size:0.8rem; color:var(--text-muted);">漢字並非隨意拼湊，而是遵循「六書」與結構美學的精密組合：</p>
+                <div class="pokedex-tabs">
+                    <div class="cat-chip active" onclick="setPokedexFilter('all', this)">顯示全部主題</div>
+                    <div class="cat-chip" onclick="setPokedexFilter('earned', this)">🏆 已獲徽章主題</div>
+                    <div class="cat-chip" onclick="setPokedexFilter('incomplete', this)">⏳ 尚未集齊主題</div>
+                </div>
+                <div id="pokedexGroupsContainer"></div>
+
+                <!-- 移入圖鑑底部的防誤觸重置區 -->
+                <div class="danger-zone">
+                    <button class="btn-danger-outline" id="openResetZoneBtn" onclick="toggleResetPanel(true)">🗑️ 重置所有遊玩進度...</button>
                     
-                    <div class="liushu-grid">
-                        <div class="liushu-item">
-                            <strong>二疊字（並立/上下）</strong>
-                            同一字根重複兩次，增強語意。如：<span style="color:var(--accent-gold);">火+火=炎</span>、<span style="color:var(--accent-gold);">木+木=林</span>。
-                        </div>
-                        <div class="liushu-item">
-                            <strong>三疊字（品字結構）</strong>
-                            同一字根堆疊三次，表「極多、極盛」。如：<span style="color:var(--accent-gold);">水×3=淼</span>、<span style="color:var(--accent-gold);">金×3=鑫</span>。
-                        </div>
-                        <div class="liushu-item">
-                            <strong>會意組合</strong>
-                            合兩字之義為新義。如：<span style="color:var(--accent-gold);">人+言=信</span>、<span style="color:var(--accent-gold);">日+月=明</span>。
-                        </div>
-                        <div class="liushu-item">
-                            <strong>多層次進階</strong>
-                            合成後的字可再次入爐！如：<span style="color:var(--accent-gold);">炎+炎=燚</span>、<span style="color:var(--accent-gold);">林+火=焚</span>。
+                    <div class="reset-confirm-box" id="resetConfirmBox">
+                        <p>⚠️ 此操作將<strong>永久清空</strong>所有已煉出的漢字與徽章！<br>請在下方輸入「<strong>重置</strong>」二字以解鎖確認按鈕：</p>
+                        <div class="reset-input-row">
+                            <input type="text" id="resetConfirmInput" placeholder="輸入：重置" oninput="checkResetInput()">
+                            <button class="btn-danger-solid" id="confirmResetBtn" disabled onclick="executeResetProgress()">確認清空</button>
+                            <button class="btn" onclick="toggleResetPanel(false)">取消</button>
                         </div>
                     </div>
-                </div>
-
-                <h4 style="margin-bottom:12px;">漢字收錄總覽</h4>
-                <div class="pokedex-grid" id="pokedexGrid">
-                    <!-- 動態繪製圖鑑內容 -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 合成歷程 Modal -->
-    <div class="modal-overlay" id="recipeTreeModal">
+    <!-- 🌳 造字配方 Modal -->
+    <div class="modal-overlay" id="recipeTreeModal" onclick="if(event.target === this) closeModal('recipeTreeModal')">
         <div class="modal-content" style="max-width: 460px;">
             <div class="modal-header">
                 <h3>🌳 造字配方 (Recipe Tree)</h3>
                 <button class="btn" onclick="closeModal('recipeTreeModal')">✕</button>
             </div>
-            <div class="modal-body" id="recipeTreeBody">
-                <!-- 動態注入配方歷程 -->
+            <div class="modal-body" id="recipeTreeBody"></div>
+        </div>
+    </div>
+
+    <!-- 📖 熔煉漢字詳解 Modal（點擊提示框時彈出） -->
+    <div class="modal-overlay" id="charDetailModal" onclick="if(event.target === this) closeModal('charDetailModal')">
+        <div class="modal-content" style="max-width: 460px;">
+            <div class="modal-header">
+                <h3>📖 漢字詳解</h3>
+                <button class="btn" onclick="closeModal('charDetailModal')">✕</button>
             </div>
+            <div class="modal-body" id="charDetailBody"></div>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // 1. Google 試算表設定區（請填入你的 SHEET_ID）
+        // 1. Google 試算表設定區
         // ==========================================
         const SHEET_ID = '1W7klW4ch7WxMY4s2puN_2ZD9xxOIzdZh51Up0KDW1ZE';
         const ITEMS_SHEET_NAME = 'Items';
         const RECIPES_SHEET_NAME = 'Recipes';
 
-        // 離線或尚未設定 SHEET_ID 時的預設保底資料
+        // 離線或連線異常時的保底字庫
         let ITEMS = {
-            '火': { pinyin: 'ㄏㄨㄛˇ', cat: 'base', structure: '象形字', desc: '象火焰向上燃燒之形，光明與熱力之源。' },
-            '水': { pinyin: 'ㄕㄨㄟˇ', cat: 'base', structure: '象形字', desc: '象河川水流蜿蜒流動之形。' },
-            '炎': { pinyin: 'ㄧㄢˊ', cat: 'dup', structure: '上下二疊', desc: '雙火相疊，火光上騰，天氣酷熱。' },
-            '淼': { pinyin: 'ㄇㄧㄠˇ', cat: 'dup', structure: '品字結構', desc: '三水浩蕩，形容水勢遼闊無邊無際。' }
+            '疒': { pinyin: 'ㄋㄧˋ', cat: 'base', structure: '象形字', desc: '倚靠病床之形，所有疾病相關漢字的部首。', group: '基礎字根' },
+            '尤': { pinyin: 'ㄧㄡˊ', cat: 'base', structure: '指事字', desc: '突出、特別之義，亦作形聲字的聲符。', group: '基礎字根' },
+            '巴': { pinyin: 'ㄅㄚ', cat: 'base', structure: '象形字', desc: '貼附、緊黏之義，亦作聲符。', group: '基礎字根' },
+            '留': { pinyin: 'ㄌㄧㄡˊ', cat: 'base', structure: '會意字', desc: '停留、積聚不散之義。', group: '基礎字根' },
+            '豆': { pinyin: 'ㄉㄡˋ', cat: 'base', structure: '象形字', desc: '古代盛食器，後指圓粒狀豆類。', group: '基礎字根' },
+            '利': { pinyin: 'ㄌㄧˋ', cat: 'base', structure: '會意字', desc: '以刀割禾，銳利、通順之義。', group: '基礎字根' },
+            '疣': { pinyin: 'ㄧㄡˊ', cat: 'xingsheng', structure: '半包圍形聲', desc: '皮膚上因病毒感染凸起的小贅生物（瘊子）。', group: '皮膚上的病', badgeIcon: '🩹' },
+            '疤': { pinyin: 'ㄅㄚ', cat: 'xingsheng', structure: '半包圍形聲', desc: '皮膚傷口癒合後留下的纖維組織痕跡。', group: '皮膚上的病', badgeIcon: '🩹' },
+            '瘤': { pinyin: 'ㄌㄧㄡˊ', cat: 'xingsheng', structure: '半包圍形聲', desc: '組織細胞異常增生積聚而成的腫塊。', group: '皮膚上的病', badgeIcon: '🩹' },
+            '痘': { pinyin: 'ㄉㄡˋ', cat: 'xingsheng', structure: '半包圍形聲', desc: '皮膚上形如小豆粒的疹子或痤瘡（青春痘）。', group: '皮膚上的病', badgeIcon: '🩹' },
+            '痢': { pinyin: 'ㄌㄧˋ', cat: 'xingsheng', structure: '半包圍形聲', desc: '腹痛泄瀉、排便不暢的腸道疾病（痢疾）。', group: '皮膚上的病', badgeIcon: '🩹' }
         };
+
         let RECIPES = {
-            '火+火': '炎',
-            '水+水+水': '淼'
+            '疒+尤': '疣',
+            '巴+疒': '疤',
+            '疒+留': '瘤',
+            '疒+豆': '痘',
+            '利+疒': '痢'
         };
-        let INITIAL_UNLOCKED = ['火', '水'];
+
+        let INITIAL_UNLOCKED = ['疒', '尤', '巴', '留', '豆', '利'];
 
         // 遊戲狀態 State
         let unlockedItems = new Set();
         let recipeHistory = {};
         let slots = [null, null, null];
         let currentCategory = 'all';
+        let pokedexFilter = 'all';
 
         // ==========================================
         // 2. 試算表 CSV 讀取與解析引擎
@@ -718,7 +1016,6 @@
 
         async function loadDatabaseFromSheets() {
             if (!SHEET_ID || SHEET_ID === 'YOUR_GOOGLE_SHEET_ID') {
-                showToast('ℹ️ 尚未設定 SHEET_ID，目前使用內建測試字庫');
                 return;
             }
 
@@ -732,31 +1029,34 @@
                 const itemsText = await itemsRes.text();
                 const recipesText = await recipesRes.text();
 
-                // 若權限未公開，Google 會回傳登入頁 HTML
                 if (!itemsRes.ok || itemsText.trim().startsWith('<!DOCTYPE')) {
-                    throw new Error('試算表權限未設為「知道連結的任何人」或分頁名稱錯誤');
+                    throw new Error('試算表權限未公開或分頁名稱錯誤');
                 }
 
-                // 解析 Items 分頁（跳過第 0 列標題）
                 const itemRows = parseCSV(itemsText).slice(1);
                 const newItems = {};
                 const newInitial = [];
+                const catFallbackMap = { dup: '疊字奇觀', huiyi: '會意新字', xingsheng: '形聲字', rare: '進階與生僻' };
 
                 itemRows.forEach(cols => {
-                    const [char, pinyin, cat, structure, desc, isInit] = cols;
+                    const [char, pinyin, cat, structure, desc, isInit, group, badgeIcon] = cols;
                     if (!char) return;
+                    const initFlag = String(isInit).toUpperCase() === 'TRUE';
+                    const resolvedGroup = group
+                        ? group.trim()
+                        : (initFlag ? '基礎字根' : (catFallbackMap[cat] || '綜合字集'));
+
                     newItems[char] = {
                         pinyin: pinyin || '',
                         cat: cat || 'huiyi',
                         structure: structure || '會意字',
-                        desc: desc || ''
+                        desc: desc || '',
+                        group: resolvedGroup,
+                        badgeIcon: badgeIcon ? badgeIcon.trim() : '🏅'
                     };
-                    if (String(isInit).toUpperCase() === 'TRUE') {
-                        newInitial.push(char);
-                    }
+                    if (initFlag) newInitial.push(char);
                 });
 
-                // 解析 Recipes 分頁（跳過第 0 列標題）
                 const recipeRows = parseCSV(recipesText).slice(1);
                 const newRecipes = {};
 
@@ -776,7 +1076,7 @@
                     ITEMS = newItems;
                     RECIPES = newRecipes;
                     INITIAL_UNLOCKED = newInitial.length > 0 ? newInitial : Object.keys(newItems).slice(0, 5);
-                    showToast(`☁️ 已從試算表同步 ${Object.keys(ITEMS).length} 字、${Object.keys(RECIPES).length} 組配方`);
+                    showToast(`☁️ 已同步試算表：${Object.keys(ITEMS).length} 字`);
                 }
             } catch (err) {
                 console.error(err);
@@ -785,10 +1085,39 @@
         }
 
         // ==========================================
-        // 3. 遊戲核心互動邏輯
+        // 3. 分組統計與徽章計算引擎
+        // ==========================================
+        function getGroupedCollections() {
+            const groups = {};
+            Object.entries(ITEMS).forEach(([char, info]) => {
+                const gName = info.group || '未分類';
+                if (!groups[gName]) {
+                    groups[gName] = {
+                        name: gName,
+                        icon: info.badgeIcon || '🏅',
+                        isBadgeGroup: gName !== '基礎字根',
+                        chars: []
+                    };
+                }
+                if (info.badgeIcon && groups[gName].icon === '🏅') {
+                    groups[gName].icon = info.badgeIcon;
+                }
+                groups[gName].chars.push(char);
+            });
+
+            Object.values(groups).forEach(g => {
+                g.unlockedCount = g.chars.filter(c => unlockedItems.has(c)).length;
+                g.totalCount = g.chars.length;
+                g.completed = g.totalCount > 0 && g.unlockedCount === g.totalCount;
+            });
+
+            return groups;
+        }
+
+        // ==========================================
+        // 4. 遊戲核心互動邏輯
         // ==========================================
         window.onload = async () => {
-            showToast('⏳ 正在從 Google 試算表載入字庫...');
             await loadDatabaseFromSheets();
             loadProgress();
             renderInventory();
@@ -809,7 +1138,7 @@
                 if (!item) return;
 
                 if (currentCategory !== 'all' && item.cat !== currentCategory) return;
-                if (search && !id.includes(search) && !item.pinyin.includes(search) && !item.desc.toLowerCase().includes(search)) return;
+                if (search && !id.includes(search) && !item.pinyin.includes(search) && !(item.group || '').includes(search)) return;
 
                 const count = countInSlots(id);
                 const card = document.createElement('div');
@@ -881,17 +1210,31 @@
                 const isNew = !unlockedItems.has(resultId);
                 unlockedItems.add(resultId);
 
+                const detailData = {
+                    charId: resultId,
+                    ingredients: [...activeChars]
+                };
+
                 if (isNew) {
                     recipeHistory[resultId] = [...activeChars];
-                    showToast(`✨ 熔煉出新字：【${resultId}】(${ITEMS[resultId].pinyin})！`);
+                    const targetGroup = ITEMS[resultId].group;
+                    const groups = getGroupedCollections();
+                    const gObj = groups[targetGroup];
+
+                    if (gObj && gObj.isBadgeGroup && gObj.completed) {
+                        showToast(`🎉 煉出【${resultId}】並獲得徽章：${gObj.icon}【${gObj.name}】！`, true, detailData);
+                    } else {
+                        const progressHint = (gObj && gObj.isBadgeGroup) ? `（${gObj.name} ${gObj.unlockedCount}/${gObj.totalCount}）` : '';
+                        showToast(`✨ 熔煉出新字：【${resultId}】${progressHint}`, false, detailData);
+                    }
                 } else {
-                    showToast(`🔥 熔煉成功：【${resultId}】`);
+                    showToast(`🔥 熔煉成功：【${resultId}】`, false, detailData);
                 }
 
                 saveProgress();
                 updateProgress();
             } else {
-                showToast(`💨 ${activeChars.join(' + ')} 在爐中化為一縷青煙，沒有組成新字...`);
+                showToast(`💨 ${activeChars.join(' + ')} 在爐中化為一縷青煙，沒有組成新字...`, false, null);
             }
 
             clearAllSlots();
@@ -899,7 +1242,7 @@
 
         function setCategory(cat, el) {
             currentCategory = cat;
-            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('#categoryFilters .cat-chip').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             renderInventory();
         }
@@ -909,12 +1252,72 @@
         }
 
         let toastTimer = null;
-        function showToast(msg) {
+        function showToast(msg, isBadge = false, detailData = null) {
             const toast = document.getElementById('logToast');
-            toast.innerText = msg;
-            toast.style.display = 'block';
             if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+
+            if (detailData && ITEMS[detailData.charId]) {
+                toast.innerHTML = `${msg} <span class="toast-tap-hint">👆 點擊查看字義</span>`;
+                toast.className = `log-toast clickable ${isBadge ? 'badge-unlock' : ''}`;
+                toast.onclick = () => {
+                    toast.style.display = 'none';
+                    openCharDetailModal(detailData.charId, detailData.ingredients);
+                };
+            } else {
+                toast.innerText = msg;
+                toast.className = `log-toast ${isBadge ? 'badge-unlock' : ''}`;
+                toast.onclick = null;
+            }
+
+            toast.style.display = 'block';
+            toastTimer = setTimeout(() => { toast.style.display = 'none'; }, isBadge ? 5500 : 4800);
+        }
+
+        function openCharDetailModal(charId, customIngredients = null) {
+            const item = ITEMS[charId];
+            if (!item) return;
+
+            const ingredients = customIngredients || recipeHistory[charId];
+            const recipeHTML = ingredients
+                ? ingredients.map(p => `
+                    <div class="card" style="cursor:default; padding:6px 10px;">
+                        <span class="card-char">${p}</span>
+                        <span class="card-symbol">${ITEMS[p] ? ITEMS[p].pinyin : ''}</span>
+                    </div>
+                `).join('<span style="font-weight:bold; color:var(--accent-ember);">+</span>')
+                : '';
+
+            const body = document.getElementById('charDetailBody');
+            body.innerHTML = `
+                <div style="text-align:center; margin-bottom:14px;">
+                    <div style="font-family:'KaiTi','BiauKai',serif; font-size:3.6rem; color:var(--accent-gold); font-weight:bold; line-height:1.15;">
+                        ${charId}
+                    </div>
+                    <div style="font-size:1rem; color:var(--text-main); margin-top:4px; font-weight:bold;">
+                        ${item.pinyin}
+                    </div>
+                    <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                        <span class="detail-badge-tag">📐 ${item.structure}</span>
+                        ${item.group ? `<span class="detail-badge-tag">${item.badgeIcon || '🏷️'} ${item.group}</span>` : ''}
+                    </div>
+                </div>
+
+                ${recipeHTML ? `
+                <div style="display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px; padding:10px; background:#0f172a; border-radius:8px; border:1px solid var(--border-color);">
+                    ${recipeHTML}
+                    <span style="font-weight:bold; color:var(--accent-gold);">=</span>
+                    <strong style="font-family:'KaiTi','BiauKai',serif; font-size:1.3rem; color:var(--accent-gold);">${charId}</strong>
+                </div>` : ''}
+
+                <div style="background:#131c2e; border-left:3px solid var(--accent-gold); padding:12px 14px; border-radius:6px; font-size:0.92rem; color:var(--text-main); line-height:1.65; margin-bottom:18px;">
+                    ${item.desc || '暫無詳細釋義。'}
+                </div>
+
+                <div style="text-align:center;">
+                    <button class="btn btn-primary" style="margin:0 auto; padding:8px 28px; font-size:0.95rem;" onclick="closeModal('charDetailModal')">✓ 我看完了</button>
+                </div>
+            `;
+            openModal('charDetailModal');
         }
 
         function updateProgress() {
@@ -924,28 +1327,106 @@
 
             document.getElementById('progressFill').style.width = `${pct}%`;
             document.getElementById('progressText').innerText = `${current} / ${total}`;
+
+            const badgeGroups = Object.values(getGroupedCollections()).filter(g => g.isBadgeGroup);
+            const earnedCount = badgeGroups.filter(g => g.completed).length;
+            document.getElementById('badgeCountText').innerText = `${earnedCount}/${badgeGroups.length}`;
+        }
+
+        // ==========================================
+        // 5. 渲染「已獲得徽章」陳列館 Modal
+        // ==========================================
+        function renderBadgesModal() {
+            const groups = Object.values(getGroupedCollections()).filter(g => g.isBadgeGroup);
+            const earned = groups.filter(g => g.completed);
+            const locked = groups.filter(g => !g.completed);
+
+            document.getElementById('earnedBadgeNum').innerText = earned.length;
+            document.getElementById('lockedBadgeNum').innerText = locked.length;
+
+            const earnedGrid = document.getElementById('earnedBadgesGrid');
+            const lockedGrid = document.getElementById('lockedBadgesGrid');
+
+            if (earned.length === 0) {
+                earnedGrid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.88rem; padding:12px; background:#0f172a; border-radius:8px; text-align:center;">尚未獲得任何徽章，試著集齊任一主題的所有漢字吧！</div>`;
+            } else {
+                earnedGrid.innerHTML = earned.map(g => createBadgeCardHTML(g, true)).join('');
+            }
+
+            lockedGrid.innerHTML = locked.map(g => createBadgeCardHTML(g, false)).join('');
+        }
+
+        function createBadgeCardHTML(group, isEarned) {
+            const pills = group.chars.map(c => {
+                const has = unlockedItems.has(c);
+                return `<span class="mini-char ${has ? '' : 'missing'}">${has ? c : '？'}</span>`;
+            }).join('');
+
+            return `
+                <div class="badge-card ${isEarned ? '' : 'locked'}">
+                    <div class="badge-emblem">${group.icon}</div>
+                    <div class="badge-name">${group.name}</div>
+                    <div style="font-size:0.78rem; color:${isEarned ? '#fcd34d' : 'var(--text-muted)'};">
+                        ${isEarned ? '✨ 已集齊全套漢字' : `收集進度：${group.unlockedCount} / ${group.totalCount} 字`}
+                    </div>
+                    <div class="badge-chars-pill">${pills}</div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 6. 渲染「主題分類圖鑑」Modal
+        // ==========================================
+        function setPokedexFilter(filterType, el) {
+            pokedexFilter = filterType;
+            document.querySelectorAll('.pokedex-tabs .cat-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            renderPokedex();
         }
 
         function renderPokedex() {
-            const grid = document.getElementById('pokedexGrid');
-            grid.innerHTML = '';
+            const container = document.getElementById('pokedexGroupsContainer');
+            container.innerHTML = '';
 
-            Object.keys(ITEMS).forEach(id => {
-                const item = ITEMS[id];
-                const isUnlocked = unlockedItems.has(id);
+            const groups = Object.values(getGroupedCollections());
 
-                const card = document.createElement('div');
-                card.className = `poke-card ${isUnlocked ? '' : 'locked'}`;
-                card.innerHTML = `
-                    <div class="poke-title">
-                        <span class="poke-char">${isUnlocked ? id : '？'}</span>
-                        <span style="font-size:0.78rem; color:var(--text-muted);">${isUnlocked ? item.pinyin : '未解鎖'}</span>
+            groups.forEach(group => {
+                if (pokedexFilter === 'earned' && (!group.isBadgeGroup || !group.completed)) return;
+                if (pokedexFilter === 'incomplete' && (!group.isBadgeGroup || group.completed)) return;
+
+                const section = document.createElement('div');
+                section.className = `group-section ${group.isBadgeGroup && group.completed ? 'completed' : ''}`;
+
+                const statusBadge = !group.isBadgeGroup
+                    ? `<span class="group-status">基礎原料 (${group.unlockedCount}/${group.totalCount})</span>`
+                    : group.completed
+                        ? `<span class="group-status earned">🏆 已獲得徽章【${group.name}】</span>`
+                        : `<span class="group-status">進度 ${group.unlockedCount} / ${group.totalCount}（集齊獲徽章）</span>`;
+
+                const cardsHTML = group.chars.map(id => {
+                    const item = ITEMS[id];
+                    const isUnlocked = unlockedItems.has(id);
+                    return `
+                        <div class="poke-card ${isUnlocked ? '' : 'locked'}">
+                            <div class="poke-title">
+                                <span class="poke-char">${isUnlocked ? id : '？'}</span>
+                                <span style="font-size:0.78rem; color:var(--text-muted);">${isUnlocked ? item.pinyin : '未解鎖'}</span>
+                            </div>
+                            ${isUnlocked ? `<div class="poke-structure">${item.structure}</div>` : ''}
+                            <div class="poke-desc">${isUnlocked ? item.desc : '尚未在熔爐中煉出此字。'}</div>
+                            ${isUnlocked && recipeHistory[id] ? `<button class="btn" style="margin-top:4px; font-size:0.72rem; padding:3px 8px; align-self:flex-start;" onclick="showRecipeTree('${id}')">🌳 查看配方</button>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                section.innerHTML = `
+                    <div class="group-header">
+                        <div class="group-title">${group.icon} ${group.name}</div>
+                        ${statusBadge}
                     </div>
-                    ${isUnlocked ? `<div class="poke-structure">${item.structure}</div>` : ''}
-                    <div class="poke-desc">${isUnlocked ? item.desc : '尚未在熔爐中煉出此字。'}</div>
-                    ${isUnlocked && recipeHistory[id] ? `<button class="btn" style="margin-top:4px; font-size:0.72rem; padding:3px 8px; align-self:flex-start;" onclick="showRecipeTree('${id}')">🌳 查看造字配方</button>` : ''}
+                    <div class="pokedex-grid">${cardsHTML}</div>
                 `;
-                grid.appendChild(card);
+                container.appendChild(section);
             });
         }
 
@@ -978,11 +1459,43 @@
 
         function openModal(id) {
             if (id === 'pokedexModal') renderPokedex();
+            if (id === 'badgesModal') renderBadgesModal();
             document.getElementById(id).style.display = 'flex';
         }
 
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
+            if (id === 'pokedexModal') {
+                toggleResetPanel(false);
+            }
+        }
+
+        function toggleResetPanel(show) {
+            const box = document.getElementById('resetConfirmBox');
+            const openBtn = document.getElementById('openResetZoneBtn');
+            const input = document.getElementById('resetConfirmInput');
+            const confirmBtn = document.getElementById('confirmResetBtn');
+
+            if (!box) return;
+            box.style.display = show ? 'block' : 'none';
+            openBtn.style.display = show ? 'none' : 'inline-block';
+            input.value = '';
+            confirmBtn.disabled = true;
+            if (show) input.focus();
+        }
+
+        function checkResetInput() {
+            const val = document.getElementById('resetConfirmInput').value.trim();
+            document.getElementById('confirmResetBtn').disabled = (val !== '重置');
+        }
+
+        function executeResetProgress() {
+            const val = document.getElementById('resetConfirmInput').value.trim();
+            if (val !== '重置') return;
+
+            localStorage.removeItem('hanzi_smelter_unlocked');
+            localStorage.removeItem('hanzi_smelter_history');
+            location.reload();
         }
 
         function saveProgress() {
@@ -994,21 +1507,12 @@
             const savedUnlocked = localStorage.getItem('hanzi_smelter_unlocked');
             const savedHistory = localStorage.getItem('hanzi_smelter_history');
 
-            // 將舊存檔與試算表中新增的初始字根自動合併
             const baseSet = new Set(INITIAL_UNLOCKED);
             if (savedUnlocked) {
                 JSON.parse(savedUnlocked).forEach(id => baseSet.add(id));
             }
             unlockedItems = baseSet;
             if (savedHistory) recipeHistory = JSON.parse(savedHistory);
-        }
-
-        function resetProgress() {
-            if (confirm('確定要重置所有文字熔煉進度嗎？')) {
-                localStorage.removeItem('hanzi_smelter_unlocked');
-                localStorage.removeItem('hanzi_smelter_history');
-                location.reload();
-            }
         }
     </script>
 </body>
