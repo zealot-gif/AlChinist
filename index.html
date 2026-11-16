@@ -85,6 +85,7 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         button.btn {
@@ -121,6 +122,16 @@
         }
         button.btn-badge:hover {
             background: linear-gradient(135deg, #92400e, #d97706);
+        }
+
+        button.btn-user-logged {
+            background: rgba(16, 185, 129, 0.16);
+            border-color: var(--accent-green);
+            color: #a7f3d0;
+            font-weight: bold;
+        }
+        button.btn-user-logged:hover {
+            background: rgba(16, 185, 129, 0.28);
         }
 
         /* 主要遊玩區域 */
@@ -488,6 +499,87 @@
             flex: 1;
         }
 
+        /* 登入 / 註冊表單樣式 */
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 18px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            color: var(--accent-gold);
+            font-weight: bold;
+            border-bottom-color: var(--accent-gold);
+        }
+
+        .auth-field {
+            margin-bottom: 14px;
+        }
+
+        .auth-field label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .auth-field input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            user-select: text;
+        }
+
+        .auth-field input:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .auth-status {
+            font-size: 0.85rem;
+            margin-bottom: 14px;
+            padding: 9px 12px;
+            border-radius: 6px;
+            display: none;
+            line-height: 1.45;
+        }
+
+        .auth-status.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+
+        .auth-status.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #6ee7b7;
+        }
+
+        .auth-status.info {
+            display: block;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #7dd3fc;
+        }
+
         /* 圖鑑分組區塊樣式 */
         .pokedex-tabs {
             display: flex;
@@ -594,7 +686,7 @@
             align-self: flex-start;
         }
 
-        /* 徽章陳列館樣式 */
+        /* 徽章陳列館樣式（支援收闔/展開） */
         .badge-section-title {
             font-size: 1rem;
             color: var(--accent-gold);
@@ -602,6 +694,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .earned-badges-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 24px;
         }
 
         .badges-grid {
@@ -623,6 +723,47 @@
             gap: 8px;
             box-shadow: 0 4px 16px rgba(251, 191, 36, 0.18);
             position: relative;
+        }
+
+        .badge-card.earned-toggle {
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .badge-card.earned-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(251, 191, 36, 0.32);
+        }
+
+        .badge-card.collapsed {
+            flex-direction: row;
+            padding: 8px 16px;
+            border-radius: 999px;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .badge-compact-icon {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .badge-compact-name {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .badge-caret {
+            font-size: 0.75rem;
+            color: #fcd34d;
+            opacity: 0.85;
+            margin-left: 2px;
+        }
+
+        .badge-card.expanded {
+            flex: 1 1 260px;
+            max-width: 100%;
         }
 
         .badge-card.locked {
@@ -805,6 +946,7 @@
         <div class="btn-group">
             <button class="btn btn-badge" onclick="openModal('badgesModal')">🏆 已獲得徽章 (<span id="badgeCountText">0/0</span>)</button>
             <button class="btn btn-primary" onclick="openModal('pokedexModal')">📜 分類圖鑑</button>
+            <button class="btn" id="userAuthBtn" onclick="openAuthModal()">👤 登入 / 註冊</button>
         </div>
     </header>
 
@@ -816,11 +958,11 @@
             </div>
             <div class="category-filter" id="categoryFilters">
                 <div class="cat-chip active" onclick="setCategory('all', this)">全部</div>
-                <div class="cat-chip" onclick="setCategory('base', this)">基礎字根</div>
-                <div class="cat-chip" onclick="setCategory('dup', this)">疊字奇觀</div>
-                <div class="cat-chip" onclick="setCategory('huiyi', this)">會意新字</div>
-                <div class="cat-chip" onclick="setCategory('xingsheng', this)">形聲字</div>
-                <div class="cat-chip" onclick="setCategory('rare', this)">進階與生僻</div>
+                <div class="cat-chip" onclick="setCategory('自然', this)">自然</div>
+                <div class="cat-chip" onclick="setCategory('抽象', this)">抽象</div>
+                <div class="cat-chip" onclick="setCategory('草蟲', this)">草蟲</div>
+                <div class="cat-chip" onclick="setCategory('禽獸', this)">禽獸</div>
+                <div class="cat-chip" onclick="setCategory('部首', this)">部首</div>
             </div>
             <div class="inventory-list" id="inventoryList"></div>
         </aside>
@@ -853,6 +995,17 @@
         </section>
     </main>
 
+    <!-- 👤 帳號登入與雲端同步 Modal -->
+    <div class="modal-overlay" id="authModal" onclick="if(event.target === this) closeModal('authModal')">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3>👤 雲端帳號與進度同步</h3>
+                <button class="btn" onclick="closeModal('authModal')">✕</button>
+            </div>
+            <div class="modal-body" id="authModalBody"></div>
+        </div>
+    </div>
+
     <!-- 🏆 已獲得徽章 Modal -->
     <div class="modal-overlay" id="badgesModal" onclick="if(event.target === this) closeModal('badgesModal')">
         <div class="modal-content">
@@ -862,7 +1015,7 @@
             </div>
             <div class="modal-body">
                 <h4 class="badge-section-title">✨ 已獲得徽章 (<span id="earnedBadgeNum">0</span>)</h4>
-                <div class="badges-grid" id="earnedBadgesGrid"></div>
+                <div class="earned-badges-wrap" id="earnedBadgesGrid"></div>
 
                 <h4 class="badge-section-title" style="color:var(--text-muted);">🔒 尚未集齊的徽章 (<span id="lockedBadgeNum">0</span>)</h4>
                 <div class="badges-grid" id="lockedBadgesGrid"></div>
@@ -926,25 +1079,26 @@
 
     <script>
         // ==========================================
-        // 1. Google 試算表設定區
+        // 1. Google 試算表與 Apps Script 設定區
         // ==========================================
         const SHEET_ID = '1W7klW4ch7WxMY4s2puN_2ZD9xxOIzdZh51Up0KDW1ZE';
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwwPnMr9Rxah0xv7in0-EIcrrEB9VBitZVXaRGWvA1tCkiq6KA4_58c8i1wUirT_K6KOg/exec'; // 👈 請貼上步驟一部署的網頁應用程式 URL（結尾為 /exec）
         const ITEMS_SHEET_NAME = 'Items';
         const RECIPES_SHEET_NAME = 'Recipes';
 
         // 離線或連線異常時的保底字庫
         let ITEMS = {
-            '疒': { pinyin: 'ㄋㄧˋ', cat: 'base', structure: '象形字', desc: '倚靠病床之形，所有疾病相關漢字的部首。', group: '基礎字根' },
-            '尤': { pinyin: 'ㄧㄡˊ', cat: 'base', structure: '指事字', desc: '突出、特別之義，亦作形聲字的聲符。', group: '基礎字根' },
-            '巴': { pinyin: 'ㄅㄚ', cat: 'base', structure: '象形字', desc: '貼附、緊黏之義，亦作聲符。', group: '基礎字根' },
-            '留': { pinyin: 'ㄌㄧㄡˊ', cat: 'base', structure: '會意字', desc: '停留、積聚不散之義。', group: '基礎字根' },
-            '豆': { pinyin: 'ㄉㄡˋ', cat: 'base', structure: '象形字', desc: '古代盛食器，後指圓粒狀豆類。', group: '基礎字根' },
-            '利': { pinyin: 'ㄌㄧˋ', cat: 'base', structure: '會意字', desc: '以刀割禾，銳利、通順之義。', group: '基礎字根' },
-            '疣': { pinyin: 'ㄧㄡˊ', cat: 'xingsheng', structure: '半包圍形聲', desc: '皮膚上因病毒感染凸起的小贅生物（瘊子）。', group: '皮膚上的病', badgeIcon: '🩹' },
-            '疤': { pinyin: 'ㄅㄚ', cat: 'xingsheng', structure: '半包圍形聲', desc: '皮膚傷口癒合後留下的纖維組織痕跡。', group: '皮膚上的病', badgeIcon: '🩹' },
-            '瘤': { pinyin: 'ㄌㄧㄡˊ', cat: 'xingsheng', structure: '半包圍形聲', desc: '組織細胞異常增生積聚而成的腫塊。', group: '皮膚上的病', badgeIcon: '🩹' },
-            '痘': { pinyin: 'ㄉㄡˋ', cat: 'xingsheng', structure: '半包圍形聲', desc: '皮膚上形如小豆粒的疹子或痤瘡（青春痘）。', group: '皮膚上的病', badgeIcon: '🩹' },
-            '痢': { pinyin: 'ㄌㄧˋ', cat: 'xingsheng', structure: '半包圍形聲', desc: '腹痛泄瀉、排便不暢的腸道疾病（痢疾）。', group: '皮膚上的病', badgeIcon: '🩹' }
+            '疒': { pinyin: 'ㄋㄧˋ', cats: ['部首'], structure: '象形字', desc: '倚靠病床之形，所有疾病相關漢字的部首。', groups: ['基礎字根'], groupIcons: [''] },
+            '尤': { pinyin: 'ㄧㄡˊ', cats: ['抽象'], structure: '指事字', desc: '突出、特別之義，亦作形聲字的聲符。', groups: ['基礎字根'], groupIcons: [''] },
+            '巴': { pinyin: 'ㄅㄚ', cats: ['抽象'], structure: '象形字', desc: '貼附、緊黏之義，亦作聲符。', groups: ['基礎字根'], groupIcons: [''] },
+            '留': { pinyin: 'ㄌㄧㄡˊ', cats: ['抽象'], structure: '會意字', desc: '停留、積聚不散之義。', groups: ['基礎字根'], groupIcons: [''] },
+            '豆': { pinyin: 'ㄉㄡˋ', cats: ['草蟲', '部首'], structure: '象形字', desc: '古代盛食器，後指圓粒狀豆類。', groups: ['基礎字根'], groupIcons: [''] },
+            '利': { pinyin: 'ㄌㄧˋ', cats: ['抽象'], structure: '會意字', desc: '以刀割禾，銳利、通順之義。', groups: ['基礎字根'], groupIcons: [''] },
+            '疣': { pinyin: 'ㄧㄡˊ', cats: ['抽象'], structure: '半包圍形聲', desc: '皮膚上因病毒感染凸起的小贅生物（瘊子）。', groups: ['皮膚上的病'], groupIcons: ['🩹'] },
+            '疤': { pinyin: 'ㄅㄚ', cats: ['抽象'], structure: '半包圍形聲', desc: '皮膚傷口癒合後留下的纖維組織痕跡。', groups: ['皮膚上的病'], groupIcons: ['🩹'] },
+            '瘤': { pinyin: 'ㄌㄧㄡˊ', cats: ['抽象'], structure: '半包圍形聲', desc: '組織細胞異常增生積聚而成的腫塊。', groups: ['皮膚上的病'], groupIcons: ['🩹'] },
+            '痘': { pinyin: 'ㄉㄡˋ', cats: ['抽象'], structure: '半包圍形聲', desc: '皮膚上形如小豆粒的疹子或痤瘡（青春痘）。', groups: ['皮膚上的病'], groupIcons: ['🩹'] },
+            '痢': { pinyin: 'ㄌㄧˋ', cats: ['抽象'], structure: '半包圍形聲', desc: '腹痛泄瀉、排便不暢的腸道疾病（痢疾）。', groups: ['皮膚上的病'], groupIcons: ['🩹'] }
         };
 
         let RECIPES = {
@@ -957,16 +1111,54 @@
 
         let INITIAL_UNLOCKED = ['疒', '尤', '巴', '留', '豆', '利'];
 
-        // 遊戲狀態 State
+        // 遊戲與使用者狀態 State
         let unlockedItems = new Set();
         let recipeHistory = {};
         let slots = [null, null, null];
         let currentCategory = 'all';
         let pokedexFilter = 'all';
+        let currentUser = null; // { username, passwordHash, lastSync }
+        let authMode = 'login'; // 'login' | 'register'
+        let cloudSyncTimer = null;
 
         // ==========================================
-        // 2. 試算表 CSV 讀取與解析引擎
+        // 2. 試算表 CSV 讀取與多標籤/多徽章解析引擎
         // ==========================================
+        const CAT_ALIAS = {
+            '自然': '自然', 'nature': '自然',
+            '抽象': '抽象', 'abstract': '抽象',
+            '草蟲': '草蟲', 'plant': '草蟲', 'insect': '草蟲',
+            '禽獸': '禽獸', 'beast': '禽獸', 'animal': '禽獸',
+            '部首': '部首', 'radical': '部首', 'base': '部首'
+        };
+
+        function parseCategories(rawCat) {
+            if (!rawCat) return [];
+            return String(rawCat)
+                .split(/[,，、\/+|]+/)
+                .map(s => s.trim())
+                .filter(Boolean)
+                .map(s => CAT_ALIAS[s.toLowerCase()] || s);
+        }
+
+        function parseGroupsAndIcons(rawGroup, rawIcon, initFlag) {
+            if (!rawGroup || !String(rawGroup).trim()) {
+                return {
+                    groups: [initFlag ? '基礎字根' : '綜合字集'],
+                    groupIcons: ['🏅']
+                };
+            }
+            const groups = String(rawGroup)
+                .split(/[,，、\/+|]+/)
+                .map(s => s.trim())
+                .filter(Boolean);
+            const icons = rawIcon
+                ? String(rawIcon).split(/[,，、\/+|]+/).map(s => s.trim()).filter(Boolean)
+                : [];
+            const groupIcons = groups.map((_, idx) => icons[idx] || icons[0] || '');
+            return { groups, groupIcons };
+        }
+
         function parseCSV(text) {
             const rows = [];
             let row = [];
@@ -1037,23 +1229,20 @@
                 const itemRows = parseCSV(itemsText).slice(1);
                 const newItems = {};
                 const newInitial = [];
-                const catFallbackMap = { dup: '疊字奇觀', huiyi: '會意新字', xingsheng: '形聲字', rare: '進階與生僻' };
 
                 itemRows.forEach(cols => {
                     const [char, pinyin, cat, structure, desc, isInit, group, badgeIcon] = cols;
                     if (!char) return;
                     const initFlag = String(isInit).toUpperCase() === 'TRUE';
-                    const resolvedGroup = group
-                        ? group.trim()
-                        : (initFlag ? '基礎字根' : (catFallbackMap[cat] || '綜合字集'));
+                    const { groups, groupIcons } = parseGroupsAndIcons(group, badgeIcon, initFlag);
 
                     newItems[char] = {
                         pinyin: pinyin || '',
-                        cat: cat || 'huiyi',
+                        cats: parseCategories(cat),
                         structure: structure || '會意字',
                         desc: desc || '',
-                        group: resolvedGroup,
-                        badgeIcon: badgeIcon ? badgeIcon.trim() : '🏅'
+                        groups,
+                        groupIcons
                     };
                     if (initFlag) newInitial.push(char);
                 });
@@ -1086,24 +1275,299 @@
         }
 
         // ==========================================
-        // 3. 分組統計與徽章計算引擎
+        // 3. 使用者登入、註冊與雲端存檔同步引擎
+        // ==========================================
+        async function hashPassword(password) {
+            const salted = 'HanziSmelter_Salt_2026_' + password;
+            if (window.crypto && window.crypto.subtle) {
+                const msgBuffer = new TextEncoder().encode(salted);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            let h = 0;
+            for (let i = 0; i < salted.length; i++) {
+                h = ((h << 5) - h) + salted.charCodeAt(i);
+                h |= 0;
+            }
+            return 'fallback_' + Math.abs(h).toString(16);
+        }
+
+        async function callGasApi(payload) {
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GAS_WEB_APP_URL') {
+                throw new Error('尚未設定 GAS_WEB_APP_URL，請先完成 Apps Script 部署並貼上網址');
+            }
+            const res = await fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) {
+                throw new Error('網路連線異常，請稍後再試');
+            }
+            return await res.json();
+        }
+
+        function updateUserHeaderUI(syncing = false) {
+            const btn = document.getElementById('userAuthBtn');
+            if (!btn) return;
+            if (currentUser) {
+                btn.className = 'btn btn-user-logged';
+                btn.innerText = syncing ? `☁️ 同步中...` : `👤 ${currentUser.username}`;
+            } else {
+                btn.className = 'btn';
+                btn.innerText = '👤 登入 / 註冊';
+            }
+        }
+
+        function openAuthModal() {
+            renderAuthModal();
+            openModal('authModal');
+        }
+
+        function switchAuthMode(mode) {
+            authMode = mode;
+            renderAuthModal();
+        }
+
+        function renderAuthModal() {
+            const body = document.getElementById('authModalBody');
+
+            if (currentUser) {
+                body.innerHTML = `
+                    <div style="text-align:center; padding:10px 0 18px;">
+                        <div style="font-size:2.4rem; margin-bottom:6px;">🧙‍♂️</div>
+                        <div style="font-size:1.15rem; font-weight:bold; color:var(--accent-green);">
+                            ${currentUser.username}
+                        </div>
+                        <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">
+                            已連線至 Google 試算表雲端存檔
+                        </div>
+                        ${currentUser.lastSync ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">上次同步：${currentUser.lastSync}</div>` : ''}
+                    </div>
+                    <div id="authStatusMsg" class="auth-status"></div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <button class="btn btn-primary" style="justify-content:center; padding:9px;" onclick="manualSyncNow()">🔄 立即手動同步雲端進度</button>
+                        <button class="btn" style="justify-content:center; padding:9px; color:#fca5a5;" onclick="logoutUser()">🚪 登出此帳號</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const isGasReady = GAS_WEB_APP_URL && GAS_WEB_APP_URL !== 'YOUR_GAS_WEB_APP_URL';
+            body.innerHTML = `
+                <div class="auth-tabs">
+                    <div class="auth-tab ${authMode === 'login' ? 'active' : ''}" onclick="switchAuthMode('login')">登入帳號</div>
+                    <div class="auth-tab ${authMode === 'register' ? 'active' : ''}" onclick="switchAuthMode('register')">註冊新帳號</div>
+                </div>
+
+                ${!isGasReady ? `<div class="auth-status error">⚠️ 尚未設定 Apps Script 網址（GAS_WEB_APP_URL），目前僅能使用本機存檔。</div>` : ''}
+                <div id="authStatusMsg" class="auth-status"></div>
+
+                <div class="auth-field">
+                    <label>使用者帳號（暱稱或 Email）</label>
+                    <input type="text" id="authUsername" placeholder="請輸入帳號..." autocomplete="username">
+                </div>
+                <div class="auth-field">
+                    <label>密碼</label>
+                    <input type="password" id="authPassword" placeholder="請輸入密碼..." autocomplete="current-password" onkeydown="if(event.key==='Enter') submitAuthForm()">
+                </div>
+
+                <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:14px; line-height:1.45;">
+                    ${authMode === 'login'
+                        ? '登入後會自動將本機進度與雲端存檔合併，換裝置也能接續遊玩。'
+                        : '註冊時會自動把你目前本機已煉出的漢字一併備份至雲端。'}
+                </p>
+
+                <button class="btn btn-primary" id="authSubmitBtn" style="width:100%; justify-content:center; padding:10px; font-size:0.95rem;" onclick="submitAuthForm()">
+                    ${authMode === 'login' ? '🔓 登入並同步進度' : '✨ 建立帳號並備份存檔'}
+                </button>
+            `;
+        }
+
+        function setAuthStatus(type, msg) {
+            const el = document.getElementById('authStatusMsg');
+            if (!el) return;
+            el.className = `auth-status ${type}`;
+            el.innerText = msg;
+        }
+
+        async function submitAuthForm() {
+            const usernameInput = document.getElementById('authUsername');
+            const passwordInput = document.getElementById('authPassword');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            if (!usernameInput || !passwordInput) return;
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!username || !password) {
+                setAuthStatus('error', '請輸入帳號與密碼！');
+                return;
+            }
+            if (password.length < 4) {
+                setAuthStatus('error', '密碼長度請至少 4 個字元');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            setAuthStatus('info', authMode === 'login' ? '⏳ 正在驗證帳號並讀取雲端存檔...' : '⏳ 正在建立雲端帳號...');
+
+            try {
+                const passwordHash = await hashPassword(password);
+                const payload = {
+                    action: authMode,
+                    username,
+                    passwordHash,
+                    unlocked: JSON.stringify(Array.from(unlockedItems)),
+                    history: JSON.stringify(recipeHistory)
+                };
+
+                const result = await callGasApi(payload);
+                if (!result.success) {
+                    setAuthStatus('error', result.message || '驗證失敗');
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                // 登入成功：合併雲端與本機進度，確保兩邊戰果都不遺失
+                if (authMode === 'login') {
+                    if (Array.isArray(result.unlocked)) {
+                        result.unlocked.forEach(c => unlockedItems.add(c));
+                    }
+                    if (result.history && typeof result.history === 'object') {
+                        recipeHistory = Object.assign({}, result.history, recipeHistory);
+                    }
+                }
+
+                currentUser = {
+                    username,
+                    passwordHash,
+                    lastSync: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+                };
+                localStorage.setItem('hanzi_smelter_auth', JSON.stringify({ username, passwordHash }));
+
+                // 將合併後的最新進度寫回本機與雲端
+                localStorage.setItem('hanzi_smelter_unlocked', JSON.stringify(Array.from(unlockedItems)));
+                localStorage.setItem('hanzi_smelter_history', JSON.stringify(recipeHistory));
+                if (authMode === 'login') {
+                    await syncToCloud();
+                }
+
+                updateUserHeaderUI(false);
+                renderInventory();
+                updateProgress();
+                closeModal('authModal');
+                showToast(`👤 歡迎回來，${username}！雲端進度已同步`);
+            } catch (err) {
+                setAuthStatus('error', err.message);
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function syncToCloud() {
+            if (!currentUser) return;
+            updateUserHeaderUI(true);
+            try {
+                const res = await callGasApi({
+                    action: 'sync',
+                    username: currentUser.username,
+                    passwordHash: currentUser.passwordHash,
+                    unlocked: JSON.stringify(Array.from(unlockedItems)),
+                    history: JSON.stringify(recipeHistory)
+                });
+                if (res.success) {
+                    currentUser.lastSync = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+                }
+            } catch (err) {
+                console.error('雲端同步失敗:', err);
+            } finally {
+                updateUserHeaderUI(false);
+            }
+        }
+
+        function debouncedCloudSync() {
+            if (!currentUser) return;
+            if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
+            cloudSyncTimer = setTimeout(() => {
+                syncToCloud();
+            }, 1200);
+        }
+
+        async function manualSyncNow() {
+            if (!currentUser) return;
+            setAuthStatus('info', '⏳ 正在同步雲端進度...');
+            await syncToCloud();
+            renderAuthModal();
+            setAuthStatus('success', '✅ 雲端存檔已更新為最新進度！');
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('hanzi_smelter_auth');
+            updateUserHeaderUI(false);
+            closeModal('authModal');
+            showToast('👋 已登出雲端帳號（本機進度仍保留）');
+        }
+
+        async function restoreUserSession() {
+            const savedAuth = localStorage.getItem('hanzi_smelter_auth');
+            if (!savedAuth || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GAS_WEB_APP_URL') return;
+
+            try {
+                const { username, passwordHash } = JSON.parse(savedAuth);
+                if (!username || !passwordHash) return;
+
+                currentUser = { username, passwordHash, lastSync: '' };
+                updateUserHeaderUI(true);
+
+                const res = await callGasApi({ action: 'login', username, passwordHash });
+                if (res.success) {
+                    if (Array.isArray(res.unlocked)) {
+                        res.unlocked.forEach(c => unlockedItems.add(c));
+                    }
+                    if (res.history && typeof res.history === 'object') {
+                        recipeHistory = Object.assign({}, res.history, recipeHistory);
+                    }
+                    currentUser.lastSync = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+                    localStorage.setItem('hanzi_smelter_unlocked', JSON.stringify(Array.from(unlockedItems)));
+                    localStorage.setItem('hanzi_smelter_history', JSON.stringify(recipeHistory));
+                } else {
+                    currentUser = null;
+                    localStorage.removeItem('hanzi_smelter_auth');
+                }
+            } catch (err) {
+                console.error('自動恢復登入狀態失敗:', err);
+            } finally {
+                updateUserHeaderUI(false);
+            }
+        }
+
+        // ==========================================
+        // 4. 分組統計與一字多徽章計算引擎
         // ==========================================
         function getGroupedCollections() {
             const groups = {};
             Object.entries(ITEMS).forEach(([char, info]) => {
-                const gName = info.group || '未分類';
-                if (!groups[gName]) {
-                    groups[gName] = {
-                        name: gName,
-                        icon: info.badgeIcon || '🏅',
-                        isBadgeGroup: gName !== '基礎字根',
-                        chars: []
-                    };
-                }
-                if (info.badgeIcon && groups[gName].icon === '🏅') {
-                    groups[gName].icon = info.badgeIcon;
-                }
-                groups[gName].chars.push(char);
+                const gList = info.groups && info.groups.length ? info.groups : ['未分類'];
+                const iList = info.groupIcons || [];
+
+                gList.forEach((gName, idx) => {
+                    if (!groups[gName]) {
+                        groups[gName] = {
+                            name: gName,
+                            icon: iList[idx] || '🏅',
+                            isBadgeGroup: gName !== '基礎字根',
+                            chars: []
+                        };
+                    } else if (groups[gName].icon === '🏅' && iList[idx]) {
+                        groups[gName].icon = iList[idx];
+                    }
+
+                    if (!groups[gName].chars.includes(char)) {
+                        groups[gName].chars.push(char);
+                    }
+                });
             });
 
             Object.values(groups).forEach(g => {
@@ -1116,11 +1580,12 @@
         }
 
         // ==========================================
-        // 4. 遊戲核心互動邏輯
+        // 5. 遊戲核心互動邏輯
         // ==========================================
         window.onload = async () => {
             await loadDatabaseFromSheets();
             loadProgress();
+            await restoreUserSession();
             renderInventory();
             updateProgress();
         };
@@ -1138,8 +1603,11 @@
                 const item = ITEMS[id];
                 if (!item) return;
 
-                if (currentCategory !== 'all' && item.cat !== currentCategory) return;
-                if (search && !id.includes(search) && !item.pinyin.includes(search) && !(item.group || '').includes(search)) return;
+                if (currentCategory !== 'all' && !(item.cats && item.cats.includes(currentCategory))) return;
+
+                const catText = (item.cats || []).join(' ');
+                const groupText = (item.groups || []).join(' ');
+                if (search && !id.includes(search) && !item.pinyin.includes(search) && !groupText.includes(search) && !catText.includes(search)) return;
 
                 const count = countInSlots(id);
                 const card = document.createElement('div');
@@ -1218,15 +1686,24 @@
 
                 if (isNew) {
                     recipeHistory[resultId] = [...activeChars];
-                    const targetGroup = ITEMS[resultId].group;
+                    const targetGroups = ITEMS[resultId].groups || [];
                     const groups = getGroupedCollections();
-                    const gObj = groups[targetGroup];
+                    const badgeTargets = targetGroups
+                        .map(gName => groups[gName])
+                        .filter(g => g && g.isBadgeGroup);
 
-                    if (gObj && gObj.isBadgeGroup && gObj.completed) {
-                        showToast(`🎉 煉出【${resultId}】並獲得徽章：${gObj.icon}【${gObj.name}】！`, true, detailData);
+                    const newlyCompleted = badgeTargets.filter(g => g.completed);
+
+                    if (newlyCompleted.length > 0) {
+                        const badgeLabels = newlyCompleted.map(g => `${g.icon}【${g.name}】`).join('、');
+                        showToast(`🎉 煉出【${resultId}】並獲得徽章：${badgeLabels}！`, true, detailData);
+                    } else if (badgeTargets.length > 0) {
+                        const progressHint = badgeTargets
+                            .map(g => `${g.name} ${g.unlockedCount}/${g.totalCount}`)
+                            .join('、');
+                        showToast(`✨ 熔煉出新字：【${resultId}】（${progressHint}）`, false, detailData);
                     } else {
-                        const progressHint = (gObj && gObj.isBadgeGroup) ? `（${gObj.name} ${gObj.unlockedCount}/${gObj.totalCount}）` : '';
-                        showToast(`✨ 熔煉出新字：【${resultId}】${progressHint}`, false, detailData);
+                        showToast(`✨ 熔煉出新字：【${resultId}】`, false, detailData);
                     }
                 } else {
                     showToast(`🔥 熔煉成功：【${resultId}】`, false, detailData);
@@ -1278,6 +1755,7 @@
             const item = ITEMS[charId];
             if (!item) return;
 
+            const groupsMap = getGroupedCollections();
             const ingredients = customIngredients || recipeHistory[charId];
             const recipeHTML = ingredients
                 ? ingredients.map(p => `
@@ -1287,6 +1765,11 @@
                     </div>
                 `).join('<span style="font-weight:bold; color:var(--accent-ember);">+</span>')
                 : '';
+
+            const groupTagsHTML = (item.groups || []).map(gName => {
+                const icon = groupsMap[gName] ? groupsMap[gName].icon : '🏷️';
+                return `<span class="detail-badge-tag">${icon} ${gName}</span>`;
+            }).join('');
 
             const body = document.getElementById('charDetailBody');
             body.innerHTML = `
@@ -1299,7 +1782,8 @@
                     </div>
                     <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:8px;">
                         <span class="detail-badge-tag">📐 ${item.structure}</span>
-                        ${item.group ? `<span class="detail-badge-tag">${item.badgeIcon || '🏷️'} ${item.group}</span>` : ''}
+                        ${item.cats && item.cats.length ? `<span class="detail-badge-tag">🗂️ ${item.cats.join('、')}</span>` : ''}
+                        ${groupTagsHTML}
                     </div>
                 </div>
 
@@ -1335,8 +1819,19 @@
         }
 
         // ==========================================
-        // 5. 渲染「已獲得徽章」陳列館 Modal
+        // 6. 渲染「已獲得徽章」陳列館 Modal（支援收闔/展開）
         // ==========================================
+        let expandedBadges = new Set();
+
+        function toggleBadgeExpand(groupName) {
+            if (expandedBadges.has(groupName)) {
+                expandedBadges.delete(groupName);
+            } else {
+                expandedBadges.add(groupName);
+            }
+            renderBadgesModal();
+        }
+
         function renderBadgesModal() {
             const groups = Object.values(getGroupedCollections()).filter(g => g.isBadgeGroup);
             const earned = groups.filter(g => g.completed);
@@ -1349,7 +1844,7 @@
             const lockedGrid = document.getElementById('lockedBadgesGrid');
 
             if (earned.length === 0) {
-                earnedGrid.innerHTML = `<div style="grid-column:1/-1; color:var(--text-muted); font-size:0.88rem; padding:12px; background:#0f172a; border-radius:8px; text-align:center;">尚未獲得任何徽章，試著集齊任一主題的所有漢字吧！</div>`;
+                earnedGrid.innerHTML = `<div style="width:100%; color:var(--text-muted); font-size:0.88rem; padding:12px; background:#0f172a; border-radius:8px; text-align:center;">尚未獲得任何徽章，試著集齊任一主題的所有漢字吧！</div>`;
             } else {
                 earnedGrid.innerHTML = earned.map(g => createBadgeCardHTML(g, true)).join('');
             }
@@ -1358,17 +1853,40 @@
         }
 
         function createBadgeCardHTML(group, isEarned) {
+            const safeName = group.name.replace(/"/g, '&quot;');
+
+            if (isEarned && !expandedBadges.has(group.name)) {
+                return `
+                    <div class="badge-card earned-toggle collapsed" data-group="${safeName}" onclick="toggleBadgeExpand(this.dataset.group)" title="點擊展開徽章詳情">
+                        <span class="badge-compact-icon">${group.icon}</span>
+                        <span class="badge-compact-name">${group.name}</span>
+                        <span class="badge-caret">▾</span>
+                    </div>
+                `;
+            }
+
             const pills = group.chars.map(c => {
                 const has = unlockedItems.has(c);
                 return `<span class="mini-char ${has ? '' : 'missing'}">${has ? c : '？'}</span>`;
             }).join('');
 
+            if (isEarned) {
+                return `
+                    <div class="badge-card earned-toggle expanded" data-group="${safeName}" onclick="toggleBadgeExpand(this.dataset.group)" title="點擊收闔徽章">
+                        <div class="badge-emblem">${group.icon}</div>
+                        <div class="badge-name">${group.name} <span class="badge-caret">▴</span></div>
+                        <div style="font-size:0.78rem; color:#fcd34d;">✨ 已集齊全套漢字（點擊收闔）</div>
+                        <div class="badge-chars-pill">${pills}</div>
+                    </div>
+                `;
+            }
+
             return `
-                <div class="badge-card ${isEarned ? '' : 'locked'}">
+                <div class="badge-card locked">
                     <div class="badge-emblem">${group.icon}</div>
                     <div class="badge-name">${group.name}</div>
-                    <div style="font-size:0.78rem; color:${isEarned ? '#fcd34d' : 'var(--text-muted)'};">
-                        ${isEarned ? '✨ 已集齊全套漢字' : `收集進度：${group.unlockedCount} / ${group.totalCount} 字`}
+                    <div style="font-size:0.78rem; color:var(--text-muted);">
+                        收集進度：${group.unlockedCount} / ${group.totalCount} 字
                     </div>
                     <div class="badge-chars-pill">${pills}</div>
                 </div>
@@ -1376,7 +1894,7 @@
         }
 
         // ==========================================
-        // 6. 渲染「主題分類圖鑑」Modal
+        // 7. 渲染「主題分類圖鑑」Modal
         // ==========================================
         function setPokedexFilter(filterType, el) {
             pokedexFilter = filterType;
@@ -1490,18 +2008,25 @@
             document.getElementById('confirmResetBtn').disabled = (val !== '重置');
         }
 
-        function executeResetProgress() {
+        async function executeResetProgress() {
             const val = document.getElementById('resetConfirmInput').value.trim();
             if (val !== '重置') return;
 
             localStorage.removeItem('hanzi_smelter_unlocked');
             localStorage.removeItem('hanzi_smelter_history');
+
+            if (currentUser) {
+                unlockedItems = new Set(INITIAL_UNLOCKED);
+                recipeHistory = {};
+                await syncToCloud();
+            }
             location.reload();
         }
 
         function saveProgress() {
             localStorage.setItem('hanzi_smelter_unlocked', JSON.stringify(Array.from(unlockedItems)));
             localStorage.setItem('hanzi_smelter_history', JSON.stringify(recipeHistory));
+            debouncedCloudSync();
         }
 
         function loadProgress() {
